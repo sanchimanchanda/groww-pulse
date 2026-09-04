@@ -12,15 +12,16 @@ export function StockCard({ item, onClick }: Props) {
   const isNoChange = item.verdict === 'no_change';
 
   // Format percent to display nicely (e.g. "+2.1%" or "-1.4%")
-  const formattedPct = item.pct_change > 0 ? `+${item.pct_change.toFixed(1)}%` : `${item.pct_change.toFixed(1)}%`;
-  const pctColor = item.pct_change > 0 ? 'text-green' : item.pct_change < 0 ? 'text-red' : 'text-secondary';
+  const formattedPct = item.pct_change !== null ? (item.pct_change > 0 ? `+${item.pct_change.toFixed(1)}%` : `${item.pct_change.toFixed(1)}%`) : '—';
+  const pctColor = item.pct_change !== null ? (item.pct_change > 0 ? 'text-green' : item.pct_change < 0 ? 'text-red' : 'text-secondary') : 'text-secondary';
+  const priceDisplay = item.price !== null ? `₹${item.price.toLocaleString('en-IN', {minimumFractionDigits: 2})}` : 'Price unavailable';
 
   const renderFreshness = () => {
     switch (item.freshness) {
       case 'LIVE': return <span className={styles.live}><span className={styles.liveDot}></span>LIVE</span>;
-      case 'DELAYED': return <span className={styles.delayed}><Clock size={12}/> DELAYED</span>;
-      case 'STALE': return <span className={styles.stale}><AlertCircle size={12}/> STALE</span>;
-      case 'UNAVAILABLE': return <span className={styles.unavailable}><AlertCircle size={12}/> UNAVAILABLE</span>;
+      case 'DELAYED': return <span className={styles.delayed}><Clock size={12}/> DATA DELAYED</span>;
+      case 'STALE': return <span className={styles.stale}><AlertCircle size={12}/> DATA STALE</span>;
+      case 'UNAVAILABLE': return <span className={styles.unavailable}><AlertCircle size={12}/> MARKET DATA UNAVAILABLE</span>;
       default: return null;
     }
   };
@@ -45,7 +46,7 @@ export function StockCard({ item, onClick }: Props) {
         <div className={styles.topRow}>
           <div className={styles.titleInfo}>
             <h3 className={styles.symbol}>{item.symbol}</h3>
-            <span className={styles.price}>₹{item.price.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+            <span className={styles.price}>{priceDisplay}</span>
             <span className={`${styles.pctChange} ${pctColor}`}>{formattedPct}</span>
           </div>
           <ChevronRight size={20} className={styles.navArrow} />

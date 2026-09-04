@@ -76,7 +76,7 @@ describe('StockCard Component', () => {
       verdict: 'no_change',
     };
     render(<StockCard item={staleItem} onClick={() => {}} />);
-    expect(screen.getByText('STALE')).toBeInTheDocument();
+    expect(screen.getByText('DATA STALE')).toBeInTheDocument();
     expect(screen.queryByText('SIGNIFICANT MOVEMENT')).not.toBeInTheDocument();
   });
 });

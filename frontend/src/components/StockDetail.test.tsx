@@ -104,13 +104,13 @@ describe('StockDetail Component', () => {
   it('13. Stale data is clearly marked stale', () => {
     const staleItem = { ...mockItem, freshness: 'STALE' as any };
     render(<StockDetail item={staleItem} onBack={() => {}} onAcknowledge={async () => {}} />);
-    expect(screen.getByText('STALE')).toBeInTheDocument();
+    expect(screen.getByText('DATA STALE')).toBeInTheDocument();
   });
 
   it('14. Unavailable data displays correctly and disables acknowledge', () => {
     const unavItem = { ...mockItem, freshness: 'UNAVAILABLE' as any };
     render(<StockDetail item={unavItem} onBack={() => {}} onAcknowledge={async () => {}} />);
-    expect(screen.getByText('UNAVAILABLE')).toBeInTheDocument();
+    expect(screen.getByText('MARKET DATA UNAVAILABLE')).toBeInTheDocument();
     const btn = screen.getByRole('button', { name: /mark as reviewed/i });
     expect(btn).toBeDisabled();
   });

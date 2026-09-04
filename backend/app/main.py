@@ -204,6 +204,7 @@ def get_changes(watchlist_id: int, db: Session = Depends(get_db)):
     results_json = []
     evaluated_results = []
     benchmark_change = None
+    benchmark_freshness = "LIVE"
     
     t0 = time.time()
     for item in wl.items:
@@ -214,13 +215,14 @@ def get_changes(watchlist_id: int, db: Session = Depends(get_db)):
         
         if snap.benchmark_pct_change is not None and benchmark_change is None:
             benchmark_change = snap.benchmark_pct_change
+            benchmark_freshness = snap.freshness.value
             
         evaluated_results.append((stock, snap, verdict))
         _metrics["signal_computations_total"] += 1
 
     # Detect market regime
     verdicts = [v for _, _, v in evaluated_results]
-    market_context = detect_market_regime(verdicts, benchmark_change)
+    market_context = detect_market_regime(verdicts, benchmark_change, benchmark_freshness)
 
     for stock, snap, verdict in evaluated_results:
         state = db.query(models.UserStockState).filter_by(

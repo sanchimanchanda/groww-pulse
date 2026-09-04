@@ -101,9 +101,9 @@ SCORE_PRACTICAL_CEILING = 4.0  # for normalizing raw score to 0-100
 class MarketSnapshot:
     """A single point-in-time reading for a stock, with provenance."""
     symbol: str
-    price: float
-    prev_close: float
-    volume: int
+    price: Optional[float]
+    prev_close: Optional[float]
+    volume: Optional[int]
     avg_volume_20d: float
     avg_daily_move_20d: float  # trailing avg absolute % daily move (proxy for volatility)
     benchmark_pct_change: Optional[float]  # e.g. NIFTY 50 % change over same window
@@ -112,9 +112,22 @@ class MarketSnapshot:
     source_timestamp: Optional[str] = None
     received_at: Optional[str] = None
 
+    def __post_init__(self):
+        import math
+        # Safely handle malformed data
+        if self.price is not None and (math.isnan(self.price) or self.price < 0):
+            self.price = None
+        if self.prev_close is not None and (math.isnan(self.prev_close) or self.prev_close <= 0):
+            self.prev_close = None
+        if self.volume is not None and (math.isnan(self.volume) or self.volume < 0):
+            self.volume = None
+            
+        if self.price is None or self.prev_close is None:
+            self.freshness = Freshness.UNAVAILABLE
+
     @property
     def pct_change(self) -> float:
-        if self.prev_close == 0:
+        if self.prev_close is None or self.price is None or self.prev_close <= 0:
             return 0.0
         return (self.price - self.prev_close) / self.prev_close * 100.0
 
@@ -134,7 +147,7 @@ class Evidence:
     volume_multiple: float = 0.0     # e.g. 3.2 → "3.2× normal volume"
     relative_multiple: float = 0.0   # abs(z_relative), multiple of normal volatility
     relative_delta_pp: float = 0.0   # e.g. 2.0 → "+2.0 pp vs benchmark"
-    pct_change: float = 0.0          # raw % change
+    pct_change: Optional[float] = 0.0          # raw % change
     benchmark_pct_change: Optional[float] = None
 
 
@@ -182,7 +195,7 @@ def evaluate(snapshot: MarketSnapshot) -> MeaningfulChangeResult:
     """Pure, deterministic function: same input always produces same output.
     This is what makes the engine testable and explainable to judges."""
 
-    if snapshot.freshness == Freshness.UNAVAILABLE:
+    if snapshot.freshness == Freshness.UNAVAILABLE or snapshot.price is None or snapshot.prev_close is None:
         return MeaningfulChangeResult(
             symbol=snapshot.symbol,
             verdict=Verdict.UNAVAILABLE,
@@ -193,7 +206,7 @@ def evaluate(snapshot: MarketSnapshot) -> MeaningfulChangeResult:
             directionality="flat",
             headline="Market data temporarily unavailable",
             why_it_matters="We couldn't reach fresh data for this stock. Showing last known values.",
-            freshness=snapshot.freshness,
+            freshness=Freshness.UNAVAILABLE,
         )
 
     pct = snapshot.pct_change
@@ -208,7 +221,7 @@ def evaluate(snapshot: MarketSnapshot) -> MeaningfulChangeResult:
         z_relative = 0.0
 
     volume_ratio = 0.0
-    if snapshot.avg_volume_20d > 0:
+    if snapshot.avg_volume_20d > 0 and snapshot.volume is not None:
         volume_ratio = snapshot.volume / snapshot.avg_volume_20d
     volume_contribution = min(volume_ratio, VOLUME_CAP) / 2.0
 
@@ -329,15 +342,17 @@ class MarketContextResult:
     benchmark_change: Optional[float]
     coverage: float
     outliers: list[str]
+    benchmark_freshness: str = "LIVE"
+    description: str = ""
 
 
-def detect_market_regime(results: list[MeaningfulChangeResult], benchmark_pct_change: Optional[float]) -> MarketContextResult:
+def detect_market_regime(results: list[MeaningfulChangeResult], benchmark_pct_change: Optional[float], benchmark_freshness: str = "LIVE") -> MarketContextResult:
     """
     Detects if the market is moving broadly together.
     If so, flags stocks that are tracking the market vs genuine outliers.
     """
     if benchmark_pct_change is None or not results:
-        return MarketContextResult(regime="normal", benchmark_change=benchmark_pct_change, coverage=0.0, outliers=[])
+        return MarketContextResult(regime="normal", benchmark_change=benchmark_pct_change, coverage=0.0, outliers=[], benchmark_freshness="UNAVAILABLE")
 
     eligible_count = 0
     tracking_count = 0
@@ -374,7 +389,9 @@ def detect_market_regime(results: list[MeaningfulChangeResult], benchmark_pct_ch
         regime=regime,
         benchmark_change=benchmark_pct_change,
         coverage=round(coverage, 3),
-        outliers=final_outliers
+        outliers=final_outliers,
+        benchmark_freshness=benchmark_freshness,
+        description="The broader market is moving strongly in this direction." if regime == "market_wide" else ""
     )
 
 def calculate_attention(item: dict) -> float:

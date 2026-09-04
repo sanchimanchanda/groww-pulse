@@ -73,9 +73,12 @@ function App() {
     fetchScenarios().then(() => fetchWatchlist());
   }, []);
 
-  const significantItems = data?.items.filter(item => item.verdict === 'needs_attention') || [];
-  const watchItems = data?.items.filter(item => item.verdict === 'watch') || [];
-  const noChangeItems = data?.items.filter(item => item.verdict === 'no_change' || item.verdict === 'unavailable') || [];
+  const attentionItems = data?.items.filter(i => i.is_attention_budget).sort((a, b) => (a.attention_rank || 99) - (b.attention_rank || 99)) || [];
+  const overflowSignificant = data?.items.filter(i => i.verdict === 'needs_attention' && !i.is_attention_budget) || [];
+  const watchItems = data?.items.filter(item => item.verdict === 'watch' && !item.is_attention_budget) || [];
+  const noChangeItems = data?.items.filter(item => (item.verdict === 'no_change' || item.verdict === 'unavailable') && !item.is_attention_budget) || [];
+  
+  const secondaryItems = [...overflowSignificant, ...watchItems];
 
   // Determine "Since you last checked" timestamp
   const getLastCheckedString = () => {
@@ -126,12 +129,12 @@ function App() {
       </header>
 
       <main className="main-content">
-        {error ? (
+        {error && !data ? (
           <div className="error-state">
             <AlertTriangle size={32} />
-            <h2>Something went wrong</h2>
-            <p>{error}</p>
-            <button onClick={() => fetchWatchlist()} className="retry-btn">Try Again</button>
+            <h2>Market data unavailable</h2>
+            <p>Showing the last known state where available.</p>
+            <button onClick={() => fetchWatchlist()} className="retry-btn">Retry</button>
           </div>
         ) : loading && !data ? (
           <div className="loading-state">
@@ -158,7 +161,23 @@ function App() {
 
             <hr className="divider-line" />
 
-            {data.market_context.regime === 'market_wide' && (
+            {error && data && (
+              <div className="global-error-banner">
+                <AlertTriangle size={20} />
+                <span>Market data unavailable. Showing the last known state where available.</span>
+                <button onClick={() => fetchWatchlist()} className="retry-btn-small">Retry</button>
+              </div>
+            )}
+
+            {!data.market_data_available && !error && (
+              <div className="global-error-banner">
+                <AlertTriangle size={20} />
+                <span>Market data unavailable. Showing the last known state where available.</span>
+                <button onClick={() => fetchWatchlist()} className="retry-btn-small">Retry</button>
+              </div>
+            )}
+
+            {data.market_context.regime === 'market_wide' && data.market_context.benchmark_change !== null && (
               <>
                 <section className="market-context-section">
                   <h3 className="section-label">MARKET-WIDE MOVEMENT</h3>
@@ -167,22 +186,31 @@ function App() {
                     <span className={`benchmark-val ${data.market_context.benchmark_change > 0 ? 'text-green' : 'text-red'}`}>
                       {data.market_context.benchmark_change > 0 ? '+' : ''}{data.market_context.benchmark_change.toFixed(1)}%
                     </span>
+                    {data.market_context.benchmark_freshness === 'STALE' && (
+                      <span className="stale-badge-small ml-2 text-xs text-yellow-500">(Stale)</span>
+                    )}
                   </div>
                   <p className="market-desc">{data.market_context.description}</p>
                 </section>
                 <hr className="divider-line" />
               </>
             )}
+            {data.market_context.regime === 'market_wide' && data.market_context.benchmark_change === null && (
+              <>
+                <section className="market-context-section opacity-75">
+                  <h3 className="section-label">MARKET-WIDE MOVEMENT</h3>
+                  <div className="benchmark-stat text-secondary">
+                    Market comparison unavailable
+                  </div>
+                </section>
+                <hr className="divider-line" />
+              </>
+            )}
 
             <section className="attention-section">
-              <h3 className="section-label">
-                {significantItems.length > 0 
-                  ? `${significantItems.length} THING${significantItems.length > 1 ? 'S' : ''} WORTH YOUR ATTENTION`
-                  : 'NOTHING REQUIRES IMMEDIATE ATTENTION'}
-              </h3>
-              
+              <h3 className="section-label">THINGS WORTH YOUR ATTENTION</h3>
               <div className="card-list">
-                {significantItems.map(item => (
+                {attentionItems.map(item => (
                   <StockCard 
                     key={item.symbol} 
                     item={item} 
@@ -190,17 +218,20 @@ function App() {
                   />
                 ))}
               </div>
+              {overflowSignificant.length > 0 && (
+                <p className="mt-3 watch-desc">+{overflowSignificant.length} more meaningful change{overflowSignificant.length > 1 ? 's' : ''} available below.</p>
+              )}
             </section>
 
             <hr className="divider-line" />
 
             <section className="watch-section">
               <h3 className="section-label">WATCH</h3>
-              {watchItems.length > 0 ? (
+              {secondaryItems.length > 0 ? (
                 <>
-                  <p className="watch-desc">{watchItems.length} stock{watchItems.length > 1 ? 's' : ''} changed, but nothing unusual stood out.</p>
+                  <p className="watch-desc">{secondaryItems.length} stock{secondaryItems.length > 1 ? 's' : ''} changed, but were lower priority or nothing unusual stood out.</p>
                   <div className="card-list">
-                    {watchItems.map(item => (
+                    {secondaryItems.map(item => (
                       <StockCard 
                         key={item.symbol} 
                         item={item} 
@@ -222,7 +253,7 @@ function App() {
                 onClick={() => setNoChangeExpanded(!noChangeExpanded)}
                 aria-expanded={noChangeExpanded}
               >
-                <span className="section-label">NO NOTABLE CHANGE</span>
+                <span className="section-label">{data.market_data_available ? 'NO NOTABLE CHANGE' : 'MARKET DATA UNAVAILABLE'}</span>
                 {noChangeExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
               </button>
               <p className="no-change-desc">{noChangeItems.length} stocks</p>

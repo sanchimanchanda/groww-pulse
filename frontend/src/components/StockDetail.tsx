@@ -12,15 +12,16 @@ interface Props {
 export function StockDetail({ item, onBack, onAcknowledge }: Props) {
   const [acknowledging, setAcknowledging] = useState(false);
 
-  const formattedPct = item.pct_change > 0 ? `+${item.pct_change.toFixed(1)}%` : `${item.pct_change.toFixed(1)}%`;
-  const pctColor = item.pct_change > 0 ? 'text-green' : item.pct_change < 0 ? 'text-red' : 'text-secondary';
+  const formattedPct = item.pct_change !== null ? (item.pct_change > 0 ? `+${item.pct_change.toFixed(1)}%` : `${item.pct_change.toFixed(1)}%`) : '—';
+  const pctColor = item.pct_change !== null ? (item.pct_change > 0 ? 'text-green' : item.pct_change < 0 ? 'text-red' : 'text-secondary') : 'text-secondary';
+  const priceDisplay = item.price !== null ? `₹${item.price.toLocaleString('en-IN', {minimumFractionDigits: 2})}` : 'Price unavailable';
 
   const renderFreshness = () => {
     switch (item.freshness) {
       case 'LIVE': return <span className={styles.live}><span className={styles.liveDot}></span>LIVE</span>;
-      case 'DELAYED': return <span className={styles.delayed}><Clock size={12}/> DELAYED</span>;
-      case 'STALE': return <span className={styles.stale}><AlertCircle size={12}/> STALE</span>;
-      case 'UNAVAILABLE': return <span className={styles.unavailable}><AlertCircle size={12}/> UNAVAILABLE</span>;
+      case 'DELAYED': return <span className={styles.delayed}><Clock size={12}/> DATA DELAYED</span>;
+      case 'STALE': return <span className={styles.stale}><AlertCircle size={12}/> DATA STALE</span>;
+      case 'UNAVAILABLE': return <span className={styles.unavailable}><AlertCircle size={12}/> MARKET DATA UNAVAILABLE</span>;
       default: return null;
     }
   };
@@ -42,7 +43,12 @@ export function StockDetail({ item, onBack, onAcknowledge }: Props) {
       <header className={styles.header}>
         <div className={styles.titleInfo}>
           <h2 className={styles.symbol}>{item.symbol}</h2>
-          <span className={styles.price}>₹{item.price.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+          <div className="flex items-baseline gap-2">
+            <span className={styles.price}>{priceDisplay}</span>
+            {item.freshness === 'UNAVAILABLE' && item.price !== null && (
+              <span className="text-xs text-yellow-600 font-medium">LAST KNOWN VALUE</span>
+            )}
+          </div>
           <span className={`${styles.pctChange} ${pctColor}`}>{formattedPct}</span>
         </div>
 
@@ -56,6 +62,13 @@ export function StockDetail({ item, onBack, onAcknowledge }: Props) {
       </header>
 
       <hr className="divider-line" />
+
+      {item.freshness === 'STALE' && (
+        <div className="mx-6 mt-4 p-3 bg-yellow-900/20 border border-yellow-700/50 rounded-md text-yellow-500 text-sm flex items-center gap-2">
+          <AlertCircle size={16} />
+          Some signals may be outdated.
+        </div>
+      )}
 
       {/* WHY IT STANDS OUT */}
       <section className={styles.section}>
@@ -102,13 +115,13 @@ export function StockDetail({ item, onBack, onAcknowledge }: Props) {
             <div className={styles.historyBlock}>
               <span className={styles.historyLabel}>Price</span>
               <div className={styles.historyValues}>
-                <span className={styles.oldValue}>₹{item.since_last_checked.price_then.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                <span className={styles.oldValue}>{item.since_last_checked.price_then !== null ? `₹${item.since_last_checked.price_then.toLocaleString('en-IN', {minimumFractionDigits: 2})}` : '—'}</span>
                 <span className={styles.arrow}>→</span>
-                <span className={styles.newValue}>₹{item.since_last_checked.price_now.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                <span className={styles.newValue}>{item.since_last_checked.price_now !== null ? `₹${item.since_last_checked.price_now.toLocaleString('en-IN', {minimumFractionDigits: 2})}` : '—'}</span>
                 <span className={`${styles.historyPct} ${pctColor}`}>{formattedPct}</span>
               </div>
             </div>
-            {item.since_last_checked.volume_then > 0 && item.since_last_checked.volume_now > 0 && (
+            {item.since_last_checked.volume_then !== null && item.since_last_checked.volume_now !== null && (
               <div className={styles.historyBlock}>
                 <span className={styles.historyLabel}>Volume</span>
                 <div className={styles.historyValues}>

@@ -13,6 +13,9 @@ const mockBaseResponse: WatchlistChangesResponse = {
     headline: 'Normal Market',
     description: 'The market is normal.',
     benchmark_change: 0.5,
+    coverage: 0,
+    outliers: [],
+    benchmark_freshness: 'LIVE',
   },
   items: [
     {
@@ -40,7 +43,9 @@ const mockBaseResponse: WatchlistChangesResponse = {
         volume_then: 1000,
         volume_now: 2000
       },
-      is_new_to_state: false
+      is_new_to_state: false,
+      attention_rank: 1,
+      is_attention_budget: true
     },
     {
       symbol: 'WATCH',
@@ -61,7 +66,9 @@ const mockBaseResponse: WatchlistChangesResponse = {
       evidence: { volatility_multiple: 1, volume_multiple: 1, relative_multiple: 1, relative_delta_pp: 1, pct_change: 1, benchmark_pct_change: 0.5 },
       signals: [],
       since_last_checked: null,
-      is_new_to_state: true
+      is_new_to_state: true,
+      attention_rank: null,
+      is_attention_budget: false
     },
     {
       symbol: 'NOCHANGE',
@@ -82,7 +89,9 @@ const mockBaseResponse: WatchlistChangesResponse = {
       evidence: { volatility_multiple: 0, volume_multiple: 0, relative_multiple: 0, relative_delta_pp: 0, pct_change: 0, benchmark_pct_change: 0.5 },
       signals: [],
       since_last_checked: null,
-      is_new_to_state: true
+      is_new_to_state: true,
+      attention_rank: null,
+      is_attention_budget: false
     }
   ]
 };
@@ -133,10 +142,10 @@ describe('App Component - Phase 6', () => {
     });
   });
 
-  it('3. Meaningful changes appear', async () => {
+  it('3. Meaningful changes appear in attention section', async () => {
     render(<App />);
     await waitFor(() => {
-      expect(screen.getByText('1 THING WORTH YOUR ATTENTION')).toBeInTheDocument();
+      expect(screen.getByText('THINGS WORTH YOUR ATTENTION')).toBeInTheDocument();
       expect(screen.getByText('ATTENTION')).toBeInTheDocument();
     });
   });
@@ -187,7 +196,7 @@ describe('App Component - Phase 6', () => {
 
     render(<App />);
     await waitFor(() => {
-      expect(screen.getByText('STALE')).toBeInTheDocument();
+      expect(screen.getByText('DATA STALE')).toBeInTheDocument();
     });
   });
 
@@ -204,7 +213,7 @@ describe('App Component - Phase 6', () => {
     render(<App />);
     await waitFor(() => {
       fireEvent.click(screen.getByText('NO NOTABLE CHANGE'));
-      expect(screen.getByText('UNAVAILABLE')).toBeInTheDocument();
+      expect(screen.getByText('MARKET DATA UNAVAILABLE')).toBeInTheDocument();
     });
   });
 

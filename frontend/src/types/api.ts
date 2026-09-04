@@ -20,18 +20,18 @@ export interface Signal {
 
 export interface SinceLastChecked {
   last_viewed_at: string;
-  price_then: number;
-  price_now: number;
-  volume_then: number;
-  volume_now: number;
+  price_then: number | null;
+  price_now: number | null;
+  volume_then: number | null;
+  volume_now: number | null;
 }
 
 export interface WatchlistChangeItem {
   symbol: string;
   name: string;
   sector: string;
-  price: number;
-  pct_change: number;
+  price: number | null;
+  pct_change: number | null;
   freshness: Freshness;
   verdict: Verdict;
   score: number;
@@ -46,6 +46,8 @@ export interface WatchlistChangeItem {
   signals: Signal[];
   since_last_checked: SinceLastChecked | null;
   is_new_to_state: boolean;
+  attention_rank: number | null;
+  is_attention_budget: boolean;
 }
 
 export interface WatchlistChangesResponse {
@@ -61,7 +63,10 @@ export interface WatchlistChangesResponse {
     regime: MarketContext;
     headline: string;
     description: string;
-    benchmark_change: number;
+    benchmark_change: number | null;
+    coverage: number;
+    outliers: string[];
+    benchmark_freshness: string;
   };
   items: WatchlistChangeItem[];
 }

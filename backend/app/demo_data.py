@@ -141,6 +141,19 @@ def scenario_stale_data():
     return out
 
 
+def scenario_malformed_data():
+    """Provider sends invalid or negative prices, volumes, NaN, etc."""
+    out = scenario_normal_market()
+    for row in out:
+        if row["symbol"] == "RELIANCE":
+            row["price"] = -100  # Invalid negative price
+        elif row["symbol"] == "INFY":
+            row["volume"] = -50  # Invalid negative volume
+        elif row["symbol"] == "TCS":
+            row["price"] = float('nan') # Invalid NaN
+    return out
+
+
 SCENARIOS = {
     "normal_market": scenario_normal_market,
     "significant_move": scenario_significant_move,
@@ -149,4 +162,5 @@ SCENARIOS = {
     "api_failure": scenario_api_failure,
     "stale_data": scenario_stale_data,
     "killer_demo": scenario_killer_demo,
+    "malformed_data": scenario_malformed_data,
 }

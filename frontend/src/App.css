@@ -5,6 +5,37 @@
   font-family: var(--font-inter);
 }
 
+.global-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--surface-hover);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--danger);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.retry-btn-small {
+  margin-left: auto;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.retry-btn-small:hover {
+  background-color: var(--surface-active);
+  color: var(--text-primary);
+}
+
 .app-header {
   padding: var(--spacing-4) 0;
   display: flex;
