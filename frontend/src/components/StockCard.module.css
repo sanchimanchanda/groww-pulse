@@ -1,0 +1,131 @@
+.card {
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-4);
+  margin-bottom: var(--spacing-3);
+  border: 1px solid var(--border-light);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  background-color: var(--bg-hover);
+}
+
+.card.significant {
+  border-left: 4px solid var(--accent-red);
+  background-color: rgba(235, 91, 60, 0.03);
+}
+
+.card.noChange {
+  opacity: 0.8;
+}
+
+.header {
+  cursor: pointer;
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-2);
+}
+
+.titleInfo {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-3);
+}
+
+.symbol {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.price {
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.pctChange {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.navArrow {
+  color: var(--text-tertiary);
+}
+
+.significantBadge {
+  display: inline-block;
+  background-color: var(--accent-red-bg);
+  color: var(--accent-red);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: var(--spacing-3);
+  letter-spacing: 0.05em;
+}
+
+.summary {
+  margin-bottom: var(--spacing-3);
+}
+
+.headline {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.whyItMatters {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.confidence {
+  color: var(--text-secondary);
+}
+
+.divider {
+  color: var(--text-tertiary);
+}
+
+.live {
+  color: var(--accent-green);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--accent-green);
+  border-radius: 50%;
+}
+
+.delayed, .stale {
+  color: var(--accent-brand);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.unavailable {
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
