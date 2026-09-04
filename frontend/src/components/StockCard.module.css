@@ -4,44 +4,30 @@
   padding: var(--spacing-4);
   margin-bottom: var(--spacing-3);
   border: 1px solid var(--border-light);
-  cursor: pointer;
-  transition: background-color 0.18s ease, border-color 0.18s ease;
-  animation: cardEnter 0.25s ease both;
-}
-
-@keyframes cardEnter {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  transition: all 0.2s ease;
 }
 
 .card:hover {
   background-color: var(--bg-hover);
 }
 
-.card:focus-visible {
-  outline: 2px solid var(--accent-brand);
-  outline-offset: 2px;
-}
-
-/* Attention cards get a brand-green left accent */
 .card.significant {
-  border-left: 3px solid var(--accent-green);
-  background-color: rgba(0, 182, 122, 0.03);
+  border-left: 4px solid var(--accent-red);
+  background-color: rgba(235, 91, 60, 0.03);
 }
 
 .card.noChange {
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
-/* ─── Header ─────────────────────────────────────────────── */
 .header {
-  user-select: none;
+  cursor: pointer;
 }
 
 .topRow {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: var(--spacing-2);
 }
 
@@ -49,90 +35,73 @@
   display: flex;
   align-items: baseline;
   gap: var(--spacing-3);
-  flex-wrap: wrap;
-  flex: 1;
-  min-width: 0;
 }
 
 .symbol {
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: 1.125rem;
+  font-weight: 600;
   color: var(--text-primary);
-  white-space: nowrap;
 }
 
 .price {
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: var(--text-secondary);
-  white-space: nowrap;
 }
 
 .pctChange {
-  font-size: 0.95rem;
-  font-weight: 600;
-  white-space: nowrap;
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 .navArrow {
   color: var(--text-tertiary);
-  flex-shrink: 0;
-  margin-left: var(--spacing-2);
-  margin-top: 2px;
 }
 
-/* ─── Significance badge ─────────────────────────────────── */
 .significantBadge {
   display: inline-block;
-  background-color: var(--accent-green-bg);
-  color: var(--accent-green);
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 3px 8px;
+  background-color: var(--accent-red-bg);
+  color: var(--accent-red);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 8px;
   border-radius: 4px;
-  margin-bottom: var(--spacing-2);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  margin-bottom: var(--spacing-3);
+  letter-spacing: 0.05em;
 }
 
-/* ─── Summary ────────────────────────────────────────────── */
 .summary {
   margin-bottom: var(--spacing-3);
 }
 
 .headline {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 500;
-  color: var(--text-primary);
   margin-bottom: 2px;
-  line-height: 1.4;
 }
 
 .whyItMatters {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
   line-height: 1.4;
 }
 
-/* ─── Footer (confidence + freshness) ───────────────────── */
 .footer {
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  flex-wrap: wrap;
+  letter-spacing: 0.05em;
 }
 
 .confidence {
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
 }
 
 .divider {
   color: var(--text-tertiary);
 }
 
-/* ─── Freshness badges ───────────────────────────────────── */
 .live {
   color: var(--accent-green);
   display: flex;
@@ -141,31 +110,17 @@
 }
 
 .liveDot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   background-color: var(--accent-green);
   border-radius: 50%;
-  animation: livePulse 2s infinite ease-in-out;
 }
 
-@keyframes livePulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
-}
-
-.delayed {
-  color: var(--accent-yellow);
+.delayed, .stale {
+  color: var(--accent-brand);
   display: flex;
   align-items: center;
   gap: 4px;
-}
-
-.stale {
-  color: var(--accent-yellow);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  opacity: 0.85;
 }
 
 .unavailable {
@@ -173,20 +128,4 @@
   display: flex;
   align-items: center;
   gap: 4px;
-}
-
-/* ─── Mobile ─────────────────────────────────────────────── */
-@media (max-width: 480px) {
-  .titleInfo {
-    gap: var(--spacing-2);
-  }
-
-  .symbol {
-    font-size: 0.95rem;
-  }
-
-  .price,
-  .pctChange {
-    font-size: 0.88rem;
-  }
 }

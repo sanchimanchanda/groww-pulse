@@ -56,23 +56,21 @@ export function StockDetail({ item, onBack, onAcknowledge }: Props) {
           {item.verdict === 'needs_attention' && (
             <span className={styles.significantBadge}>SIGNIFICANT MOVEMENT</span>
           )}
-          <span className={styles.confidenceBadge}>{item.confidence} CONFIDENCE</span>
-          {renderFreshness()}
         </div>
       </header>
 
       <hr className="divider-line" />
 
       {item.freshness === 'STALE' && (
-        <div className={styles.staleBanner}>
-          <AlertCircle size={14} />
+        <div className="mx-6 mt-4 p-3 bg-yellow-900/20 border border-yellow-700/50 rounded-md text-yellow-500 text-sm flex items-center gap-2">
+          <AlertCircle size={16} />
           Some signals may be outdated.
         </div>
       )}
 
       {/* WHY IT STANDS OUT */}
       <section className={styles.section}>
-        <h3 className="section-label">Why it stands out</h3>
+        <h3 className="section-label">WHY IT STANDS OUT</h3>
         <div className={styles.evidenceGrid}>
           {item.evidence.volatility_multiple > 0 && (
             <div className={styles.evidenceBlock}>
@@ -109,7 +107,7 @@ export function StockDetail({ item, onBack, onAcknowledge }: Props) {
 
       {/* SINCE YOU LAST CHECKED */}
       <section className={styles.section}>
-        <h3 className="section-label">Since you last checked</h3>
+        <h3 className="section-label">SINCE YOU LAST CHECKED</h3>
         {item.since_last_checked ? (
           <div className={styles.historyGrid}>
             <div className={styles.historyBlock}>
@@ -143,7 +141,7 @@ export function StockDetail({ item, onBack, onAcknowledge }: Props) {
 
       {/* MARKET CONTEXT */}
       <section className={styles.section}>
-        <h3 className="section-label">Market context</h3>
+        <h3 className="section-label">MARKET CONTEXT</h3>
         <div className={styles.contextGrid}>
           {item.evidence.benchmark_pct_change !== null ? (
             <>
@@ -166,6 +164,17 @@ export function StockDetail({ item, onBack, onAcknowledge }: Props) {
           ) : (
             <p className={styles.placeholderText}>Market comparison unavailable</p>
           )}
+        </div>
+      </section>
+
+      <hr className="divider-line" />
+
+      {/* DATA TRUST (CONFIDENCE/FRESHNESS) */}
+      <section className={styles.section}>
+        <h3 className="section-label">DATA QUALITY</h3>
+        <div className={styles.trustGrid}>
+          <span className={styles.confidenceBadge}>{item.confidence} CONFIDENCE</span>
+          {renderFreshness()}
         </div>
       </section>
 

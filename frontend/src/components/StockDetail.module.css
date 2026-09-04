@@ -118,9 +118,8 @@
 
 .evidenceGrid {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: var(--spacing-5);
+  flex-direction: column;
+  gap: var(--spacing-4);
 }
 
 .evidenceBlock {
@@ -265,47 +264,4 @@
 .acknowledgeBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.staleBanner {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: var(--accent-yellow-bg);
-  border: 1px solid rgba(246, 166, 35, 0.2);
-  border-left: 3px solid var(--accent-yellow);
-  padding: var(--spacing-3) var(--spacing-4);
-  border-radius: var(--radius-sm);
-  color: var(--accent-yellow);
-  font-size: 0.82rem;
-  font-weight: 500;
-  margin-bottom: var(--spacing-5);
-}
-
-/* ─── Mobile ─────────────────────────────────────────────── */
-@media (max-width: 480px) {
-  .symbol {
-    font-size: 1.5rem;
-  }
-
-  .price {
-    font-size: 1.15rem;
-  }
-
-  .pctChange {
-    font-size: 1rem;
-  }
-
-  .evidenceGrid {
-    gap: var(--spacing-4);
-  }
-
-  .historyValues {
-    font-size: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .contextGrid {
-    max-width: 100%;
-  }
 }

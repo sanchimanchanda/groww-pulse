@@ -111,14 +111,13 @@ function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <div className="demo-controls">
-          <span className="demo-label">Demo Scenario</span>
+        <div className="demo-controls" aria-label="Demo controls">
+          <span className="demo-label">Demo Scenario:</span>
           <select 
             value={scenario} 
             onChange={(e) => changeScenario(e.target.value)}
             disabled={loading}
             className="scenario-select"
-            aria-label="Select demo scenario"
           >
             {availableScenarios.map(s => (
               <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
@@ -153,8 +152,8 @@ function App() {
         ) : data ? (
           <>
             <section className="greeting-section">
-              <p className="greeting">{getGreeting()}</p>
-              <h1 className="tagline">Here's what changed.</h1>
+              <h1 className="greeting">{getGreeting()}</h1>
+              <h2 className="tagline">Your market changed.</h2>
               <div className="last-checked">
                 <span className="last-checked-label">Since you last checked</span>
                 <span className="last-checked-time">{getLastCheckedString()}</span>
@@ -179,10 +178,30 @@ function App() {
               </div>
             )}
 
+
+
+            <section className="attention-section">
+              <h3 className="section-label">THINGS WORTH YOUR ATTENTION</h3>
+              <div className="card-list">
+                {attentionItems.map(item => (
+                  <StockCard 
+                    key={item.symbol} 
+                    item={item} 
+                    onClick={() => setSelectedSymbol(item.symbol)} 
+                  />
+                ))}
+              </div>
+              {overflowSignificant.length > 0 && (
+                <p className="mt-3 watch-desc">+{overflowSignificant.length} more meaningful change{overflowSignificant.length > 1 ? 's' : ''} available below.</p>
+              )}
+            </section>
+
+            <hr className="divider-line" />
+
             {data.market_context.regime === 'market_wide' && data.market_context.benchmark_change !== null && (
               <>
                 <section className="market-context-section">
-                  <h3 className="section-label">MARKET-WIDE MOVEMENT</h3>
+                  <h3 className="section-label">MARKET CONTEXT</h3>
                   <div className="benchmark-stat">
                     <span className="benchmark-name">NIFTY</span>
                     <span className={`benchmark-val ${data.market_context.benchmark_change > 0 ? 'text-green' : 'text-red'}`}>
@@ -200,7 +219,7 @@ function App() {
             {data.market_context.regime === 'market_wide' && data.market_context.benchmark_change === null && (
               <>
                 <section className="market-context-section opacity-75">
-                  <h3 className="section-label">MARKET-WIDE MOVEMENT</h3>
+                  <h3 className="section-label">MARKET CONTEXT</h3>
                   <div className="benchmark-stat text-secondary">
                     Market comparison unavailable
                   </div>
@@ -209,31 +228,11 @@ function App() {
               </>
             )}
 
-            <section className="attention-section">
-              <h3 className="section-label">Things worth your attention</h3>
-              <div className="card-list">
-                {attentionItems.length > 0 ? attentionItems.map(item => (
-                  <StockCard 
-                    key={item.symbol} 
-                    item={item} 
-                    onClick={() => setSelectedSymbol(item.symbol)} 
-                  />
-                )) : (
-                  <p className="watch-desc">Nothing stands out right now.</p>
-                )}
-              </div>
-              {overflowSignificant.length > 0 && (
-                <p className="mt-3 watch-desc">+{overflowSignificant.length} more notable change{overflowSignificant.length > 1 ? 's' : ''} below.</p>
-              )}
-            </section>
-
-            <hr className="divider-line" />
-
             <section className="watch-section">
-              <h3 className="section-label">Worth a look</h3>
+              <h3 className="section-label">WATCH</h3>
               {secondaryItems.length > 0 ? (
                 <>
-                  <p className="watch-desc">{secondaryItems.length} stock{secondaryItems.length > 1 ? 's' : ''} moved — lower priority or nothing unusual stood out.</p>
+                  <p className="watch-desc">{secondaryItems.length} stock{secondaryItems.length > 1 ? 's' : ''} changed, but were lower priority or nothing unusual stood out.</p>
                   <div className="card-list">
                     {secondaryItems.map(item => (
                       <StockCard 
@@ -256,15 +255,14 @@ function App() {
                 className="collapse-btn" 
                 onClick={() => setNoChangeExpanded(!noChangeExpanded)}
                 aria-expanded={noChangeExpanded}
-                aria-controls="no-change-list"
               >
-                <span className="section-label">{data.market_data_available ? 'No notable change' : 'Market data unavailable'}</span>
+                <span className="section-label">{data.market_data_available ? 'NO NOTABLE CHANGE' : 'MARKET DATA UNAVAILABLE'}</span>
                 {noChangeExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
               </button>
-              <p className="no-change-desc">{noChangeItems.length} stock{noChangeItems.length !== 1 ? 's' : ''} — nothing unusual detected.</p>
+              <p className="no-change-desc">{noChangeItems.length} stocks</p>
               
               {noChangeExpanded && (
-                <div id="no-change-list" className="card-list mt-3">
+                <div className="card-list mt-3">
                   {noChangeItems.map(item => (
                     <StockCard 
                       key={item.symbol} 
