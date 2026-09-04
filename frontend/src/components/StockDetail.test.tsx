@@ -53,7 +53,7 @@ describe('StockDetail Component', () => {
 
   it('3. Significance renders correctly', () => {
     render(<StockDetail item={mockItem} onBack={() => {}} onAcknowledge={async () => {}} />);
-    expect(screen.getByText('SIGNIFICANT MOVEMENT')).toBeInTheDocument();
+    expect(screen.getByText('🔴 MARKET OUTLIER')).toBeInTheDocument();
   });
 
   it('4. Confidence renders correctly', () => {
@@ -117,10 +117,10 @@ describe('StockDetail Component', () => {
 
   it('15 & 16. Market tracking context and Outlier context render correctly', () => {
     const { unmount } = render(<StockDetail item={{ ...mockItem, market_context: 'tracking_market' }} onBack={() => {}} onAcknowledge={async () => {}} />);
-    expect(screen.getByText('TRACKING MARKET')).toBeInTheDocument();
+    expect(screen.getByText('🟡 MARKET-DRIVEN')).toBeInTheDocument();
     unmount();
     render(<StockDetail item={{ ...mockItem, market_context: 'outlier' }} onBack={() => {}} onAcknowledge={async () => {}} />);
-    expect(screen.getByText('OUTLIER')).toBeInTheDocument();
+    expect(screen.getByText('🔴 MARKET OUTLIER')).toBeInTheDocument();
   });
 
   it('17 & 18. Mark-as-reviewed calls backend and prevents duplicate submissions', async () => {

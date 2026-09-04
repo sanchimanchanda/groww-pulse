@@ -3,15 +3,13 @@
 Run once: `cd backend && uvicorn app.main:app` then open `http://127.0.0.1:8000`.
 
 ## Step 1 — Quiet market
-Scenario dropdown is already on "Normal market". Point out: "Your market is
-quiet" — no needs-attention section rendered, all 10 stocks in the plain
+Scenario dropdown is already on "Normal market". Point out: "WHILE YOU WERE AWAY / Nothing meaningful changed" — no needs-attention section rendered, all 10 stocks in the plain
 list. This is the baseline the rest of the demo contrasts against.
 
-## Step 2 — Significant move
-Switch scenario to **Significant move**. RELIANCE jumps to the top under
-"Needs attention" with: `+4.8%`, and the reason: "moved 4.8%, +4.6 pts
-relative to the benchmark, on 2.1x normal volume". Click the card — detail
-view shows since-last-checked price comparison and the confidence tag.
+## Step 2 — Killer Demo
+Switch scenario to **Killer demo**. INFY jumps to the top under
+"Needs attention" with: `+2.1%` and a `🔴 MARKET OUTLIER` badge. Click the card — detail
+view shows the evidence: 3.5x normal volatility, 3.2x average volume, +2.0 pp vs NIFTY.
 
 ## Step 3 — Prove it doesn't cry wolf
 Click into HDFCBANK or another untouched stock in the quiet list — show "no
@@ -25,10 +23,7 @@ alone is capped and can't fake a high-severity alert
 (`test_high_volume_alone_does_not_trigger_needs_attention`).
 
 ## Step 5 — Market-wide move, correctly filtered
-Switch to **Market crash**. Show that most stocks stay quiet or low-severity
-despite a -3.2% benchmark move, because they're moving *with* the market,
-not against it — except SBIN, which bucks the trend on volume and is
-correctly flagged.
+Switch to **Market crash**. Show the market context banner: "9 stocks in your watchlist moved with the market. 1 was a genuine outlier." Most stocks show a `🟡 MARKET-DRIVEN` badge and are down-ranked. SBIN gets the `🔴 MARKET OUTLIER` badge because it bucks the trend.
 
 ## Step 6 — Resilience: API failure
 Switch to **API failure**. The banner appears: "Market data temporarily

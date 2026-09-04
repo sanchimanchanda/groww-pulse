@@ -100,11 +100,53 @@ complexity.
 
 **What would you build next?**
 A background worker (Phase 2, `ARCHITECTURE.md` §8), a real market data
-vendor integration behind the existing `fetch_snapshot()` seam, sector
-divergence as its own signal once reliable sector index data is available,
+vendor integration behind the existing `fetch_snapshot()` seam, full sector
+divergence based on live sector indices,
 and basic auth for multi-tenancy.
 
 **What did you intentionally leave out?**
 Kafka, microservices, Kubernetes, Redis, a live feed for the judged demo,
 corporate/news event signals, and AI-generated explanations — each with a
 documented reason in `TRADEOFFS.md`, not an oversight.
+
+**Why is RELIANCE +4.8% not flagged?**
+RELIANCE's average daily move is ~5.2%. A 4.8% move is 0.92× its normal
+movement — within its typical range. The engine treats this as noise.
+
+**Why is INFY +2.1% flagged?**
+INFY's average daily move is ~0.6%. A 2.1% move is 3.5× its normal
+movement, with 3.2× average volume and +2.0 pp outperformance vs NIFTY.
+All three signals point in the same direction.
+
+**Why not a flat 5% threshold?**
+A flat threshold treats all stocks identically. Our engine normalises each
+stock against its own history — a 5% move means something different for
+RELIANCE than for INFY.
+
+**What happens when the whole market crashes?**
+We detect market-wide movement via `detect_market_regime`. When ≥70% of
+watchlist stocks move together with magnitude ≥1×, we classify the regime as
+`market_wide` and suppress redundant attention signals. Genuine outliers
+still surface.
+
+**Is this z-score based?**
+No. We use a movement multiple: `abs(pct_change) / avg_daily_abs_move`.
+Interpretable, reproducible, and works on small datasets. A z-score requires
+standard deviation over a large return history and assumes normality.
+
+**Why no LLM?**
+The significance decision must be deterministic and auditable. An LLM would
+add latency, cost, and non-determinism to the component that most needs to
+be trustworthy. Every flagged stock traces back to a specific calculation.
+
+**Why no live market data?**
+For a judged demo, reproducibility > real-time. A live feed only produces
+interesting data during market hours and makes the demo dependent on an
+external vendor's uptime. `fetch_snapshot()` in `main.py` is the single seam
+where a live provider plugs in — the engine, schema, and API are unchanged.
+
+**Why didn't you build sector context around a real sector index?**
+We use a peer-group proxy: stocks in the same sector within your watchlist.
+We call it exactly that — a proxy — not a live sector index. When fewer than
+2 peers exist, we don't claim sector signal. Honesty about data quality is
+a core product principle.

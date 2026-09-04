@@ -52,7 +52,7 @@ def test_relative_underperformance_flagged_despite_positive_return():
 
 def test_market_wide_move_does_not_flag_stock_tracking_the_market():
     # Stock and benchmark both move -3%: relative performance ~0, so unless
-    # the absolute z-score alone crosses the bar, it should not be "needs attention"
+    # the absolute multiple alone crosses the bar, it should not be "needs attention"
     # purely because "the market crashed" — that's market-wide, not stock-specific.
     snap = make_snapshot(price=97.0, prev_close=100.0, avg_daily_move_20d=3.0,
                           benchmark_pct_change=-3.0)

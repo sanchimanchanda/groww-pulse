@@ -120,7 +120,7 @@ the ten-category taxonomy in the brief (§10):
 | Signal | Why it's in v1 | Why the others are deferred |
 |---|---|---|
 | Volatility-adjusted price move | Cheapest, single most informative signal; needs only price + a rolling average | Gap up/down and breakout/breakdown are largely captured by this already at the price level; adding them as separate categories would mostly duplicate this signal for a hackathon-scale dataset |
-| Relative performance vs. benchmark | Distinguishes stock-specific news from market-wide moves — directly prevents false positives during a market-wide rally or crash | Sector divergence is the same idea one level down; deferred because we don't have reliable sector index data in the 72h window, and it would mostly restate relative-performance |
+| Relative performance vs. benchmark | Distinguishes stock-specific news from market-wide moves — directly prevents false positives during a market-wide rally or crash | Sector divergence is similar; we use a peer-group proxy based on other watchlist stocks instead of a real sector index, which we lack reliable data for in a 72h window. |
 | Volume anomaly | Corroborates that a price move reflects real participation, not noise | Deliberately capped and weighted lowest — volume alone is a weak, easily-gamed signal and should never solely justify "needs attention" (see `test_high_volume_alone_does_not_trigger_needs_attention`) |
 
 Excluded entirely from v1: corporate/event/news signal (no reliable free

@@ -65,14 +65,27 @@
   margin-top: 8px;
 }
 
-.significantBadge {
-  background-color: var(--accent-red-bg);
-  color: var(--accent-red);
+.contextBadge {
   font-size: 0.75rem;
   font-weight: 600;
   padding: 4px 8px;
   border-radius: 4px;
   letter-spacing: 0.05em;
+}
+
+.badgeOutlier {
+  background-color: var(--accent-red-bg);
+  color: var(--accent-red);
+}
+
+.badgeTracking {
+  background-color: rgba(234, 179, 8, 0.1);
+  color: rgb(202, 138, 4);
+}
+
+.badgeNormal {
+  background-color: var(--bg-hover);
+  color: var(--text-secondary);
 }
 
 .confidenceBadge {

@@ -6,7 +6,7 @@
 | Product & Problem Interpretation | 9 | Explicitly reframes "watchlist" from "show information" to "show change", matches the brief's own instruction ("don't build the obvious watchlist") and Groww's public "simple is beautiful" philosophy. |
 | Edge Cases & Resilience | 8 | 13 unit tests on the engine, 6 demo scenarios including API failure and stale data, concurrency handled via unique constraints + upsert. Not 9/10 because there's no load-tested behavior under real concurrent write volume. |
 | Code Quality & Simplicity | 9 | No frameworks or infra added without a documented reason (`TRADEOFFS.md`); the engine is a pure, tested function; schema has no unused tables. |
-| Originality & Thoughtfulness | 8 | "Since you last checked" + volatility-adjusted, benchmark-relative scoring is a genuine reframe, not a bolt-on feature. Ceiling on this score is that the core statistical techniques (z-score normalization, relative performance) are well-known finance concepts, not novel ones — the originality is in applying them to attention-management for a watchlist, not in the math itself. |
+| Originality & Thoughtfulness | 8 | "Since you last checked" + volatility-adjusted, benchmark-relative scoring is a genuine reframe, not a bolt-on feature. Ceiling on this score is that the core statistical techniques (movement multiples, relative performance) are well-known finance concepts, not novel ones — the originality is in applying them to attention-management for a watchlist, not in the math itself. |
 
 ## Gaps identified and what we did about them
 

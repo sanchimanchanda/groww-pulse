@@ -53,9 +53,9 @@ export function StockDetail({ item, onBack, onAcknowledge }: Props) {
         </div>
 
         <div className={styles.tags}>
-          {item.verdict === 'needs_attention' && (
-            <span className={styles.significantBadge}>SIGNIFICANT MOVEMENT</span>
-          )}
+          {item.market_context === 'outlier' && <span className={`${styles.contextBadge} ${styles.badgeOutlier}`}>🔴 MARKET OUTLIER</span>}
+          {item.market_context === 'tracking_market' && <span className={`${styles.contextBadge} ${styles.badgeTracking}`}>🟡 MARKET-DRIVEN</span>}
+          {item.market_context === 'normal' && <span className={`${styles.contextBadge} ${styles.badgeNormal}`}>⚪ NORMAL RANGE</span>}
         </div>
       </header>
 

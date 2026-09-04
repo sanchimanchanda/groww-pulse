@@ -49,7 +49,7 @@ describe('StockCard Component', () => {
 
   it('renders significance correctly', () => {
     render(<StockCard item={mockItem} onClick={() => {}} />);
-    expect(screen.getByText('SIGNIFICANT MOVEMENT')).toBeInTheDocument();
+    expect(screen.getByText('🔴 MARKET OUTLIER')).toBeInTheDocument();
   });
 
   it('renders confidence correctly', () => {

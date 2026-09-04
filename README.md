@@ -1,4 +1,4 @@
-# Groww Pulse
+# Signal — Market Change Intelligence
 
 **A watchlist that tells you what changed, not what everything costs right now.**
 
@@ -12,7 +12,7 @@ of numbers a user has to re-interpret from scratch, every time.
 
 ## Solution
 
-Groww Pulse compares the market now to the market as the user last saw it,
+Signal compares the market now to the market as the user last saw it,
 scores each stock with a deterministic **Meaningful Change Engine**, and
 opens on three buckets: **needs attention**, **worth a look**, **no change**.
 Most visits should be quiet. That's the point — the product's job is to

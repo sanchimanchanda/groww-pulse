@@ -199,7 +199,7 @@ def evaluate(snapshot: MarketSnapshot) -> MeaningfulChangeResult:
         return MeaningfulChangeResult(
             symbol=snapshot.symbol,
             verdict=Verdict.UNAVAILABLE,
-            score=0.0,
+            score=-1.0,
             normalized_score=0.0,
             significance=Significance.NONE,
             confidence=Confidence.LOW,
@@ -211,14 +211,14 @@ def evaluate(snapshot: MarketSnapshot) -> MeaningfulChangeResult:
 
     pct = snapshot.pct_change
     vol_proxy = max(snapshot.avg_daily_move_20d, 0.25)  # floor to avoid div-by-~0 explosions
-    z_price = pct / vol_proxy
+    price_multiple = pct / vol_proxy
 
     if snapshot.benchmark_pct_change is not None:
         relative_change = pct - snapshot.benchmark_pct_change
-        z_relative = relative_change / vol_proxy
+        relative_multiple = relative_change / vol_proxy
     else:
         relative_change = 0.0
-        z_relative = 0.0
+        relative_multiple = 0.0
 
     volume_ratio = 0.0
     if snapshot.avg_volume_20d > 0 and snapshot.volume is not None:
@@ -226,8 +226,8 @@ def evaluate(snapshot: MarketSnapshot) -> MeaningfulChangeResult:
     volume_contribution = min(volume_ratio, VOLUME_CAP) / 2.0
 
     score = (
-        WEIGHT_PRICE_Z * abs(z_price)
-        + WEIGHT_RELATIVE_Z * abs(z_relative)
+        WEIGHT_PRICE_Z * abs(price_multiple)
+        + WEIGHT_RELATIVE_Z * abs(relative_multiple)
         + WEIGHT_VOLUME * volume_contribution
     )
 
@@ -253,26 +253,26 @@ def evaluate(snapshot: MarketSnapshot) -> MeaningfulChangeResult:
 
     # Structured evidence for direct frontend consumption
     evidence = Evidence(
-        volatility_multiple=round(abs(z_price), 2),
+        volatility_multiple=round(abs(price_multiple), 2),
         volume_multiple=round(volume_ratio, 2),
-        relative_multiple=round(abs(z_relative), 2),
+        relative_multiple=round(abs(relative_multiple), 2),
         relative_delta_pp=round(relative_change, 2),
         pct_change=round(pct, 2),
         benchmark_pct_change=round(snapshot.benchmark_pct_change, 2) if snapshot.benchmark_pct_change is not None else None,
     )
 
     signals = []
-    if abs(z_price) >= 1.0:
+    if abs(price_multiple) >= 1.0:
         signals.append(ChangeSignal(
             kind="VAPM",
-            value=round(z_price, 2),
-            description=f"Price moved {abs(pct):.1f}%, about {abs(z_price):.1f}× its normal range.",
+            value=round(price_multiple, 2),
+            description=f"Price moved {abs(pct):.1f}%, about {abs(price_multiple):.1f}× its normal range.",
         ))
-    if abs(z_relative) >= 1.0:
+    if abs(relative_multiple) >= 1.0:
         sign = "outperformed" if relative_change > 0 else "underperformed"
         signals.append(ChangeSignal(
             kind="RPM",
-            value=round(z_relative, 2),
+            value=round(relative_multiple, 2),
             description=f"{sign.capitalize()} the benchmark by {abs(relative_change):.1f} percentage points.",
         ))
     if volume_ratio >= 1.5:

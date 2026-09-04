@@ -108,6 +108,16 @@ function App() {
     return 'GOOD EVENING';
   };
 
+  const needsAttentionCount = data?.items.filter(i => i.verdict === 'needs_attention').length || 0;
+  const watchCount = data?.items.filter(i => i.verdict === 'watch').length || 0;
+  
+  let heroLine = "Nothing meaningful changed.";
+  if (needsAttentionCount === 1) heroLine = "1 thing needs your attention";
+  else if (needsAttentionCount > 1) heroLine = `${needsAttentionCount} things need your attention`;
+
+  const trackingCount = data?.items.filter(i => i.market_context === 'tracking_market').length || 0;
+  const outlierCount = data?.items.filter(i => i.market_context === 'outlier').length || 0;
+
   return (
     <div className="app-container">
       <header className="app-header">
@@ -153,7 +163,9 @@ function App() {
           <>
             <section className="greeting-section">
               <h1 className="greeting">{getGreeting()}</h1>
-              <h2 className="tagline">Your market changed.</h2>
+              <h2 className="tagline">WHILE YOU WERE AWAY</h2>
+              <p className="meaningful-count">{heroLine}</p>
+              {watchCount > 0 && <p className="meaningful-count secondary">{watchCount} other notable change{watchCount > 1 ? 's' : ''}</p>}
               <div className="last-checked">
                 <span className="last-checked-label">Since your last review</span>
                 <span className="last-checked-time">{getLastCheckedString()}</span>
@@ -211,7 +223,10 @@ function App() {
                       <span className="stale-badge-small ml-2 text-xs text-yellow-500">(Stale)</span>
                     )}
                   </div>
-                  <p className="market-desc">{data.market_context.description}</p>
+                  <p className="market-desc">
+                    {trackingCount} stock{trackingCount !== 1 ? 's' : ''} in your watchlist moved with the market.<br/>
+                    {outlierCount} {outlierCount === 1 ? 'was a genuine outlier' : 'were genuine outliers'}.
+                  </p>
                 </section>
                 <hr className="divider-line" />
               </>

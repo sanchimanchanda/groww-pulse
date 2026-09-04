@@ -34,6 +34,16 @@ export function StockCard({ item, onClick }: Props) {
     );
   };
 
+  const renderMarketBadge = () => {
+    if (item.verdict === 'no_change') return null; // Only show on needs_attention and watch
+    switch (item.market_context) {
+      case 'outlier': return <div className={`${styles.contextBadge} ${styles.badgeOutlier}`}>🔴 MARKET OUTLIER</div>;
+      case 'tracking_market': return <div className={`${styles.contextBadge} ${styles.badgeTracking}`}>🟡 MARKET-DRIVEN</div>;
+      case 'normal': return <div className={`${styles.contextBadge} ${styles.badgeNormal}`}>⚪ NORMAL RANGE</div>;
+      default: return null;
+    }
+  };
+
   return (
     <div 
       className={`${styles.card} ${isSignificant ? styles.significant : ''} ${isNoChange ? styles.noChange : ''}`}
@@ -52,11 +62,7 @@ export function StockCard({ item, onClick }: Props) {
           <ChevronRight size={20} className={styles.navArrow} />
         </div>
         
-        {isSignificant && (
-          <div className={styles.significantBadge}>
-            SIGNIFICANT MOVEMENT
-          </div>
-        )}
+        {renderMarketBadge()}
         
         {item.freshness !== 'UNAVAILABLE' && (
           <div className={styles.summary}>

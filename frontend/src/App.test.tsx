@@ -142,6 +142,14 @@ describe('App Component - Phase 6', () => {
     });
   });
 
+  it('2.5. Hero text renders correctly', async () => {
+    render(<App />);
+    await waitFor(() => {
+      expect(screen.getByText('WHILE YOU WERE AWAY')).toBeInTheDocument();
+      expect(screen.getByText('1 thing needs your attention')).toBeInTheDocument();
+    });
+  });
+
   it('3. Meaningful changes appear in attention section', async () => {
     render(<App />);
     await waitFor(() => {
