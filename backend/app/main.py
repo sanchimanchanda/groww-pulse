@@ -382,6 +382,11 @@ def market_status():
     return {"active_scenario": _active_scenario, "available_scenarios": list(demo_data.SCENARIOS.keys())}
 
 
+@app.get("/demo/scenario")
+def get_scenario():
+    return {"active_scenario": _active_scenario, "available_scenarios": list(demo_data.SCENARIOS.keys())}
+
+
 @app.post("/demo/scenario")
 def set_scenario(payload: DemoScenario):
     if payload.scenario not in demo_data.SCENARIOS:

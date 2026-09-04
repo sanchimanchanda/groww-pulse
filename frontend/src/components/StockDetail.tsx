@@ -105,9 +105,9 @@ export function StockDetail({ item, onBack, onAcknowledge }: Props) {
 
       <hr className="divider-line" />
 
-      {/* SINCE YOU LAST CHECKED */}
+      {/* SINCE YOUR LAST REVIEW */}
       <section className={styles.section}>
-        <h3 className="section-label">SINCE YOU LAST CHECKED</h3>
+        <h3 className="section-label">SINCE YOUR LAST REVIEW</h3>
         {item.since_last_checked ? (
           <div className={styles.historyGrid}>
             <div className={styles.historyBlock}>

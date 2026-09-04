@@ -155,7 +155,7 @@ function App() {
               <h1 className="greeting">{getGreeting()}</h1>
               <h2 className="tagline">Your market changed.</h2>
               <div className="last-checked">
-                <span className="last-checked-label">Since you last checked</span>
+                <span className="last-checked-label">Since your last review</span>
                 <span className="last-checked-time">{getLastCheckedString()}</span>
               </div>
             </section>

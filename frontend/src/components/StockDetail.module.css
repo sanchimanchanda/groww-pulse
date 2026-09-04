@@ -58,6 +58,13 @@
   flex-wrap: wrap;
 }
 
+.trustGrid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
 .significantBadge {
   background-color: var(--accent-red-bg);
   color: var(--accent-red);

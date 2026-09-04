@@ -166,7 +166,7 @@ describe('App Component - Phase 6', () => {
   it('5 & 6. Market-wide banner appears only when market_wide', async () => {
     render(<App />);
     await waitFor(() => {
-      expect(screen.queryByText('MARKET-WIDE MOVEMENT')).not.toBeInTheDocument();
+      expect(screen.queryByText('MARKET CONTEXT')).not.toBeInTheDocument();
     });
 
     const marketWideResponse = {
@@ -180,7 +180,7 @@ describe('App Component - Phase 6', () => {
 
     render(<App />);
     await waitFor(() => {
-      expect(screen.getByText('MARKET-WIDE MOVEMENT')).toBeInTheDocument();
+      expect(screen.getByText('MARKET CONTEXT')).toBeInTheDocument();
     });
   });
 
