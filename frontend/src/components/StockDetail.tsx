@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { WatchlistChangeItem } from '../types/api';
 import { ArrowLeft, AlertCircle, Clock } from 'lucide-react';
+import { PersonalContext } from './PersonalContext';
 import styles from './StockDetail.module.css';
 
 interface Props {
@@ -67,6 +68,11 @@ export function StockDetail({ item, onBack, onAcknowledge }: Props) {
           Some signals may be outdated.
         </div>
       )}
+
+      {/* PERSONAL CONTEXT */}
+      <div className="mx-6 mt-6">
+        <PersonalContext context={item.personal_context} />
+      </div>
 
       {/* WHY IT STANDS OUT / WHY IT'S NOT NOTABLE */}
       <section className={styles.section}>

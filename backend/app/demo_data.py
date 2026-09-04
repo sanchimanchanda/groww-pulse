@@ -154,6 +154,11 @@ def scenario_malformed_data():
     return out
 
 
+def scenario_personal_context():
+    """Reuses killer_demo market data, so the engine produces the exact same 
+    signals but the new backend aggregator injects the personal context."""
+    return scenario_killer_demo()
+
 SCENARIOS = {
     "normal_market": scenario_normal_market,
     "significant_move": scenario_significant_move,
@@ -163,4 +168,5 @@ SCENARIOS = {
     "stale_data": scenario_stale_data,
     "killer_demo": scenario_killer_demo,
     "malformed_data": scenario_malformed_data,
+    "personal_context": scenario_personal_context,
 }

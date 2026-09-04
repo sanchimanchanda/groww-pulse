@@ -62,7 +62,14 @@ export function StockCard({ item, onClick }: Props) {
           <ChevronRight size={20} className={styles.navArrow} />
         </div>
         
-        {renderMarketBadge()}
+        <div className="flex gap-2 mb-3">
+          {renderMarketBadge()}
+          {item.personal_context?.thesis && (
+            <div className={`${styles.contextBadge} ${item.personal_context.thesis.status === 'REVIEW' ? styles.badgeOutlier : styles.badgeNormal}`}>
+              🎯 THESIS: {item.personal_context.thesis.status === 'REVIEW' ? 'REVIEW' : 'OK'}
+            </div>
+          )}
+        </div>
         
         {item.freshness !== 'UNAVAILABLE' && (
           <div className={styles.summary}>

@@ -96,6 +96,8 @@ function App() {
     const isToday = maxDate.getDate() === now.getDate() && maxDate.getMonth() === now.getMonth() && maxDate.getFullYear() === now.getFullYear();
     const isYesterday = new Date(now.getTime() - 86400000).getDate() === maxDate.getDate();
     
+
+    
     const timeStr = maxDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     
     if (isToday) return `Today · ${timeStr}`;
@@ -132,7 +134,7 @@ function App() {
             className="scenario-select"
           >
             {availableScenarios.map(s => (
-              <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+              <option key={s} value={s}>{s.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</option>
             ))}
           </select>
           <button onClick={() => fetchWatchlist()} className="refresh-btn" disabled={loading} aria-label="Refresh">

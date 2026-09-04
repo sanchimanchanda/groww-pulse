@@ -144,6 +144,64 @@ class StockThesis(Base):
     )
 
 
+class MutualFund(Base):
+    __tablename__ = "mutual_funds"
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    category = Column(String, nullable=True)
+    expense_ratio = Column(Float, nullable=True)
+
+
+class MutualFundHolding(Base):
+    __tablename__ = "mutual_fund_holdings"
+    id = Column(Integer, primary_key=True)
+    fund_id = Column(Integer, ForeignKey("mutual_funds.id"), nullable=False, index=True)
+    symbol = Column(String, nullable=False, index=True)
+    weight = Column(Float, nullable=False)   # percent, e.g. 8.2 for 8.2%
+
+
+class UserMutualFund(Base):
+    __tablename__ = "user_mutual_funds"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    fund_id = Column(Integer, ForeignKey("mutual_funds.id"), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "fund_id", name="uq_user_mutual_fund"),
+    )
+
+
+class StockValuation(Base):
+    __tablename__ = "stock_valuation"
+    id = Column(Integer, primary_key=True)
+    stock_id = Column(Integer, ForeignKey("stocks.id"), unique=True, nullable=False)
+    current_pe = Column(Float, nullable=True)
+    historical_pe_median = Column(Float, nullable=True)
+    historical_pe_low = Column(Float, nullable=True)
+    historical_pe_high = Column(Float, nullable=True)
+    source = Column(String, default="demo")
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
+
+
+class StockEvent(Base):
+    __tablename__ = "stock_events"
+    id = Column(Integer, primary_key=True)
+    stock_id = Column(Integer, ForeignKey("stocks.id"), nullable=False, index=True)
+    event_type = Column(String, nullable=False)   # EARNINGS | DIVIDEND
+    event_date = Column(DateTime, nullable=False, index=True)
+    title = Column(String, nullable=True)
+
+
+class UserSIP(Base):
+    __tablename__ = "user_sips"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    instrument = Column(String, nullable=False)    # e.g. "NIFTY 50 Index Fund"
+    sip_amount = Column(Float, nullable=False)     # positive, in INR
+    frequency = Column(String, nullable=False)     # MONTHLY | WEEKLY
+    next_sip_date = Column(DateTime, nullable=True)
+
+
 class MeaningfulChange(Base):
     """Computed, persisted verdicts — so 'top changes' is a simple indexed
     query, not a recomputation on every page load."""

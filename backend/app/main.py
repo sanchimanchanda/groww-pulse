@@ -14,6 +14,9 @@ from . import models, demo_data
 from .database import Base, engine, get_db, SessionLocal
 from .engine import MarketSnapshot, evaluate, Freshness, detect_market_regime, calculate_attention
 from .models import VALID_GOALS, VALID_HORIZONS, VALID_THESIS_TYPES
+from .valuation import classify_valuation
+from .sip import evaluate_sip_context
+from .personal_context import inject_personal_context
 
 app = FastAPI(title="Groww Pulse API", version="0.1.0")
 
@@ -60,6 +63,90 @@ def seed(db: Session):
             stock = db.query(models.Stock).filter_by(symbol=s["symbol"]).first()
             db.add(models.WatchlistItem(watchlist_id=wl.id, stock_id=stock.id))
         db.commit()
+
+    if not db.query(models.MutualFund).first():
+        f1 = models.MutualFund(name="Parag Parikh Flexi Cap", category="Flexi Cap", expense_ratio=0.63)
+        f2 = models.MutualFund(name="HDFC Flexi Cap", category="Flexi Cap", expense_ratio=0.85)
+        db.add_all([f1, f2])
+        db.commit()
+        
+        holdings1 = [
+            models.MutualFundHolding(fund_id=f1.id, symbol="INFY", weight=8.2),
+            models.MutualFundHolding(fund_id=f1.id, symbol="HDFCBANK", weight=6.7),
+            models.MutualFundHolding(fund_id=f1.id, symbol="ICICIBANK", weight=5.9),
+            models.MutualFundHolding(fund_id=f1.id, symbol="TCS", weight=4.8),
+            models.MutualFundHolding(fund_id=f1.id, symbol="ITC", weight=3.1),
+        ]
+        holdings2 = [
+            models.MutualFundHolding(fund_id=f2.id, symbol="HDFCBANK", weight=7.8),
+            models.MutualFundHolding(fund_id=f2.id, symbol="ITC", weight=6.9),
+            models.MutualFundHolding(fund_id=f2.id, symbol="INFY", weight=6.2),
+            models.MutualFundHolding(fund_id=f2.id, symbol="SBIN", weight=4.8),
+            models.MutualFundHolding(fund_id=f2.id, symbol="LT", weight=3.5),
+        ]
+        db.add_all(holdings1 + holdings2)
+        db.add(models.UserMutualFund(user_id=DEMO_USER_ID, fund_id=f1.id))
+        db.add(models.UserMutualFund(user_id=DEMO_USER_ID, fund_id=f2.id))
+        db.commit()
+
+    if not db.query(models.StockValuation).first():
+        valuations = [
+            {"symbol": "RELIANCE", "pe": 28.5, "median": 26.0, "low": 20.0, "high": 35.0},
+            {"symbol": "TCS", "pe": 31.2, "median": 30.0, "low": 24.0, "high": 38.0},
+            {"symbol": "HDFCBANK", "pe": 15.4, "median": 18.0, "low": 13.0, "high": 22.0},
+            {"symbol": "ICICIBANK", "pe": 17.8, "median": 18.5, "low": 12.0, "high": 24.0},
+            {"symbol": "INFY", "pe": 22.4, "median": 28.1, "low": 19.0, "high": 34.0},
+            {"symbol": "ITC", "pe": 26.5, "median": 22.0, "low": 16.0, "high": 30.0},
+            {"symbol": "SBIN", "pe": 10.2, "median": 12.0, "low": 7.0, "high": 16.0},
+            {"symbol": "BHARTIARTL", "pe": 45.6, "median": 42.0, "low": 28.0, "high": 60.0},
+            {"symbol": "BAJFINANCE", "pe": 32.1, "median": 40.0, "low": 25.0, "high": 55.0},
+            {"symbol": "LT", "pe": 35.4, "median": 28.0, "low": 20.0, "high": 42.0},
+        ]
+        for v in valuations:
+            stock = db.query(models.Stock).filter_by(symbol=v["symbol"]).first()
+            if stock:
+                db.add(models.StockValuation(
+                    stock_id=stock.id,
+                    current_pe=v["pe"],
+                    historical_pe_median=v["median"],
+                    historical_pe_low=v["low"],
+                    historical_pe_high=v["high"]
+                ))
+        db.commit()
+
+    if not db.query(models.StockEvent).first():
+        from datetime import datetime, timedelta
+        now = datetime.utcnow()
+        infy = db.query(models.Stock).filter_by(symbol="INFY").first()
+        if infy:
+            db.add(models.StockEvent(
+                stock_id=infy.id,
+                event_type="EARNINGS",
+                event_date=now + timedelta(days=14),
+                title="Q2 Results"
+            ))
+        hdfc = db.query(models.Stock).filter_by(symbol="HDFCBANK").first()
+        if hdfc:
+            db.add(models.StockEvent(
+                stock_id=hdfc.id,
+                event_type="DIVIDEND",
+                event_date=now + timedelta(days=21),
+                title="Interim Dividend (₹19.5/sh)"
+            ))
+        db.commit()
+
+    if not db.query(models.UserSIP).filter_by(user_id=DEMO_USER_ID).first():
+        from datetime import datetime, timedelta
+        now = datetime.utcnow()
+        db.add(models.UserSIP(
+            user_id=DEMO_USER_ID,
+            instrument="NIFTY 50 Index Fund",
+            sip_amount=5000.0,
+            frequency="MONTHLY",
+            next_sip_date=now + timedelta(days=3)
+        ))
+        db.commit()
+
 
 
 @app.on_event("startup")
@@ -415,12 +502,15 @@ def get_changes(watchlist_id: int, db: Session = Depends(get_db)):
         "unavailable": sum(1 for r in results_json if r["verdict"] == "unavailable"),
     }
 
+    # Inject Personal Context
+    enriched_items = inject_personal_context(results_json, DEMO_USER_ID, wl.id, db)
+
     return {
         "watchlist_id": wl.id,
         "summary": summary,
         "market_data_available": summary["unavailable"] < len(results_json),
         "market_context": market_context.__dict__,
-        "items": results_json,
+        "items": enriched_items,
     }
 
 
@@ -524,6 +614,159 @@ def health(db: Session = Depends(get_db)):
         "database": "ok" if db_ok else "unreachable",
         "active_scenario": _active_scenario,
     }
+
+
+@app.get("/funds")
+def list_funds(db: Session = Depends(get_db)):
+    funds = db.query(models.MutualFund).all()
+    return [{"id": f.id, "name": f.name, "category": f.category, "expense_ratio": f.expense_ratio} for f in funds]
+
+
+@app.get("/funds/{fund_id}/xray")
+def fund_xray(fund_id: int, db: Session = Depends(get_db)):
+    fund = db.query(models.MutualFund).filter_by(id=fund_id).first()
+    if not fund:
+        raise HTTPException(404, "Fund not found")
+    holdings = db.query(models.MutualFundHolding).filter_by(fund_id=fund_id).order_by(models.MutualFundHolding.weight.desc()).limit(5).all()
+    return {
+        "id": fund.id,
+        "name": fund.name,
+        "category": fund.category,
+        "expense_ratio": fund.expense_ratio,
+        "top_holdings": [{"symbol": h.symbol, "weight": h.weight} for h in holdings]
+    }
+
+
+@app.get("/funds/{fund_id}/overlap")
+def fund_overlap(fund_id: int, db: Session = Depends(get_db)):
+    fund = db.query(models.MutualFund).filter_by(id=fund_id).first()
+    if not fund:
+        raise HTTPException(404, "Fund not found")
+        
+    user_funds = db.query(models.UserMutualFund).filter_by(user_id=DEMO_USER_ID).all()
+    if not user_funds:
+        return {"overlap": 0.0, "common_holdings": []}
+        
+    target_holdings = {h.symbol: h.weight for h in db.query(models.MutualFundHolding).filter_by(fund_id=fund_id).all()}
+    max_overlap = 0.0
+    common_symbols_max = []
+    
+    for uf in user_funds:
+        if uf.fund_id == fund_id and len(user_funds) > 1:
+            # Skip comparing with itself if the user has other funds to compare against
+            continue
+            
+        other_holdings = {h.symbol: h.weight for h in db.query(models.MutualFundHolding).filter_by(fund_id=uf.fund_id).all()}
+        overlap = 0.0
+        common_symbols = []
+        for sym, weight_A in target_holdings.items():
+            if sym in other_holdings:
+                weight_B = other_holdings[sym]
+                overlap += min(weight_A, weight_B)
+                common_symbols.append(sym)
+                
+        if overlap >= max_overlap:
+            max_overlap = overlap
+            common_symbols_max = common_symbols
+            
+    return {
+        "fund_id": fund_id,
+        "max_overlap": round(max_overlap / 100.0, 4),
+        "common_symbols": common_symbols_max
+    }
+
+
+@app.post("/user/funds/{fund_id}")
+def add_user_fund(fund_id: int, db: Session = Depends(get_db)):
+    fund = db.query(models.MutualFund).filter_by(id=fund_id).first()
+    if not fund:
+        raise HTTPException(404, "Fund not found")
+    uf = db.query(models.UserMutualFund).filter_by(user_id=DEMO_USER_ID, fund_id=fund_id).first()
+    if not uf:
+        db.add(models.UserMutualFund(user_id=DEMO_USER_ID, fund_id=fund_id))
+        db.commit()
+    return {"status": "added"}
+
+
+@app.delete("/user/funds/{fund_id}")
+def remove_user_fund(fund_id: int, db: Session = Depends(get_db)):
+    uf = db.query(models.UserMutualFund).filter_by(user_id=DEMO_USER_ID, fund_id=fund_id).first()
+    if uf:
+        db.delete(uf)
+        db.commit()
+    return {"status": "removed"}
+
+
+@app.get("/stocks/{symbol}/valuation")
+def get_valuation(symbol: str, db: Session = Depends(get_db)):
+    stock = db.query(models.Stock).filter_by(symbol=symbol.upper()).first()
+    if not stock:
+        raise HTTPException(404, "Stock not found")
+        
+    val = db.query(models.StockValuation).filter_by(stock_id=stock.id).first()
+    if not val:
+        return {"available": False, "reason": "VALUATION DATA UNAVAILABLE"}
+        
+    classification = classify_valuation(
+        current_pe=val.current_pe,
+        historical_pe_median=val.historical_pe_median,
+        historical_pe_low=val.historical_pe_low,
+        historical_pe_high=val.historical_pe_high
+    )
+    
+    if classification["label"] == "DATA_UNAVAILABLE":
+        return {"available": False, "reason": "VALUATION DATA UNAVAILABLE"}
+        
+    return {
+        "available": True,
+        "current_pe": val.current_pe,
+        "historical_pe_median": val.historical_pe_median,
+        "historical_pe_low": val.historical_pe_low,
+        "historical_pe_high": val.historical_pe_high,
+        "label": classification["label"],
+        "delta_vs_median_pct": classification["delta_vs_median_pct"]
+    }
+
+
+@app.get("/stocks/{symbol}/events")
+def get_events(symbol: str, db: Session = Depends(get_db)):
+    stock = db.query(models.Stock).filter_by(symbol=symbol.upper()).first()
+    if not stock:
+        raise HTTPException(404, "Stock not found")
+        
+    events = db.query(models.StockEvent).filter_by(stock_id=stock.id).all()
+    out = []
+    now = datetime.utcnow()
+    for e in events:
+        days_until = (e.event_date - now).days
+        if days_until >= 0:
+            out.append({
+                "event_type": e.event_type,
+                "event_date": e.event_date.isoformat(),
+                "title": e.title,
+                "days_until": days_until
+            })
+    return sorted(out, key=lambda x: x["days_until"])
+
+
+@app.get("/watchlists/{watchlist_id}/sip-context")
+def get_sip_context(watchlist_id: int, benchmark_weekly_change: float = 0.0, db: Session = Depends(get_db)):
+    wl = db.query(models.Watchlist).filter_by(id=watchlist_id, user_id=DEMO_USER_ID).first()
+    if not wl:
+        raise HTTPException(404, "Watchlist not found")
+        
+    sip = db.query(models.UserSIP).filter_by(user_id=DEMO_USER_ID).first()
+    
+    sip_dict = None
+    if sip:
+        sip_dict = {
+            "instrument": sip.instrument,
+            "amount": sip.sip_amount,
+            "next_date": sip.next_sip_date.isoformat() if sip.next_sip_date else None,
+            "frequency": sip.frequency
+        }
+        
+    return evaluate_sip_context(benchmark_weekly_change, sip_dict)
 
 
 @app.get("/metrics")

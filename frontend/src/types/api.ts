@@ -26,6 +26,37 @@ export interface SinceLastChecked {
   volume_now: number | null;
 }
 
+export interface ThesisContext {
+  type: string;
+  note: string | null;
+  status: "OK" | "REVIEW";
+  action: string | null;
+}
+
+export interface ValuationContext {
+  current_pe: number;
+  label: "BELOW_HISTORICAL_RANGE" | "NEAR_MEDIAN" | "ABOVE_HISTORICAL_RANGE" | "DATA_UNAVAILABLE";
+  delta_pct: number;
+}
+
+export interface EventContext {
+  type: "EARNINGS" | "DIVIDEND";
+  title: string;
+  days_until: number;
+}
+
+export interface FundOverlapContext {
+  fund_name: string;
+  weight: number;
+}
+
+export interface PersonalContext {
+  thesis?: ThesisContext;
+  valuation?: ValuationContext;
+  events?: EventContext[];
+  fund_overlap?: FundOverlapContext[];
+}
+
 export interface WatchlistChangeItem {
   symbol: string;
   name: string;
@@ -48,6 +79,7 @@ export interface WatchlistChangeItem {
   is_new_to_state: boolean;
   attention_rank: number | null;
   is_attention_budget: boolean;
+  personal_context?: PersonalContext;
 }
 
 export interface WatchlistChangesResponse {
