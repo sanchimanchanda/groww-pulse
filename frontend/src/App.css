@@ -1,3 +1,4 @@
+/* ─── Layout ─────────────────────────────────────────────── */
 .app-container {
   max-width: 640px;
   margin: 0 auto;
@@ -5,37 +6,7 @@
   font-family: var(--font-inter);
 }
 
-.global-error-banner {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background-color: var(--surface-hover);
-  border: 1px solid var(--border-color);
-  border-left: 4px solid var(--danger);
-  padding: 12px 16px;
-  margin-bottom: 20px;
-  border-radius: 6px;
-  font-size: 14px;
-  color: var(--text-primary);
-}
-
-.retry-btn-small {
-  margin-left: auto;
-  background-color: transparent;
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-  padding: 4px 12px;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.retry-btn-small:hover {
-  background-color: var(--surface-active);
-  color: var(--text-primary);
-}
-
+/* ─── Demo Controls ──────────────────────────────────────── */
 .app-header {
   padding: var(--spacing-4) 0;
   display: flex;
@@ -48,6 +19,14 @@
   align-items: center;
 }
 
+.demo-label {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
 .scenario-select {
   background-color: var(--bg-secondary);
   color: var(--text-primary);
@@ -57,6 +36,7 @@
   font-size: 0.85rem;
   text-transform: capitalize;
   outline: none;
+  max-width: 180px;
 }
 
 .scenario-select:focus {
@@ -86,57 +66,64 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Typography & Layout */
+/* ─── Greeting ───────────────────────────────────────────── */
 .greeting-section {
   margin: var(--spacing-5) 0 var(--spacing-6) 0;
 }
 
 .greeting {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
-  color: var(--text-secondary);
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
   margin-bottom: var(--spacing-1);
+  text-transform: uppercase;
 }
 
 .tagline {
   font-size: 1.75rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: var(--spacing-4);
+  line-height: 1.2;
 }
 
 .last-checked {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
 .last-checked-label {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-tertiary);
+  letter-spacing: 0.02em;
 }
 
 .last-checked-time {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--text-secondary);
   font-weight: 500;
 }
 
+/* ─── Divider ────────────────────────────────────────────── */
 .divider-line {
   border: none;
   border-top: 1px solid var(--border-light);
   margin: var(--spacing-6) 0;
 }
 
+/* ─── Section labels ─────────────────────────────────────── */
 .section-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
   color: var(--text-secondary);
   margin-bottom: var(--spacing-3);
   text-transform: uppercase;
 }
 
+/* ─── Market Context ─────────────────────────────────────── */
 .market-context-section {
   margin-bottom: var(--spacing-4);
 }
@@ -146,33 +133,38 @@
   align-items: baseline;
   gap: var(--spacing-3);
   margin-bottom: var(--spacing-2);
+  flex-wrap: wrap;
 }
 
 .benchmark-name {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.4rem;
+  font-weight: 700;
 }
 
 .benchmark-val {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.4rem;
+  font-weight: 700;
 }
 
 .market-desc {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--text-secondary);
 }
 
-.watch-section, .no-change-section, .attention-section {
+/* ─── Card sections ──────────────────────────────────────── */
+.watch-section,
+.no-change-section,
+.attention-section {
   margin-bottom: var(--spacing-6);
 }
 
 .watch-desc {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--text-secondary);
   margin-bottom: var(--spacing-4);
 }
 
+/* ─── Collapse (No Change) ───────────────────────────────── */
 .collapse-btn {
   display: flex;
   align-items: center;
@@ -187,40 +179,123 @@
 }
 
 .no-change-desc {
-  font-size: 0.95rem;
+  font-size: 0.88rem;
+  color: var(--text-tertiary);
+  margin-top: 6px;
+}
+
+/* ─── Spacing helpers ────────────────────────────────────── */
+.mt-3 { margin-top: var(--spacing-3); }
+.ml-2 { margin-left: var(--spacing-2); }
+
+/* ─── Card list animation ────────────────────────────────── */
+.card-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Stagger each card's entrance */
+.card-list > *:nth-child(1) { animation-delay: 0ms; }
+.card-list > *:nth-child(2) { animation-delay: 40ms; }
+.card-list > *:nth-child(3) { animation-delay: 80ms; }
+.card-list > *:nth-child(4) { animation-delay: 120ms; }
+.card-list > *:nth-child(5) { animation-delay: 160ms; }
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Global Error Banner ────────────────────────────────── */
+.global-error-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  background-color: var(--accent-yellow-bg);
+  border: 1px solid rgba(246, 166, 35, 0.2);
+  border-left: 3px solid var(--accent-yellow);
+  padding: var(--spacing-3) var(--spacing-4);
+  margin-bottom: var(--spacing-5);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.global-error-banner svg {
+  flex-shrink: 0;
+  color: var(--accent-yellow);
+}
+
+.retry-btn-small {
+  margin-left: auto;
+  flex-shrink: 0;
+  background-color: transparent;
   color: var(--text-secondary);
-  margin-top: -8px;
+  border: 1px solid var(--border-color);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.mt-3 {
-  margin-top: var(--spacing-3);
+.retry-btn-small:hover {
+  background-color: var(--surface-active);
+  color: var(--text-primary);
 }
 
+/* ─── Error State (cold) ─────────────────────────────────── */
 .error-state {
-  background-color: var(--accent-red-bg);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
-  padding: var(--spacing-6);
+  padding: var(--spacing-8) var(--spacing-6);
   text-align: center;
-  color: var(--accent-red);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-3);
+  margin-top: var(--spacing-8);
+}
+
+.error-state svg {
+  color: var(--text-tertiary);
+}
+
+.error-state h2 {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.error-state p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
 }
 
 .retry-btn {
-  background-color: var(--accent-red);
-  color: white;
-  padding: 8px 16px;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-focus);
+  padding: 10px 24px;
   border-radius: var(--radius-sm);
   font-weight: 600;
+  font-size: 0.9rem;
   margin-top: var(--spacing-2);
+  transition: all 0.2s;
 }
 
 .retry-btn:hover {
-  opacity: 0.9;
+  background-color: var(--bg-hover);
 }
 
+/* ─── Loading Skeletons ──────────────────────────────────── */
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -229,22 +304,55 @@
 }
 
 .skeleton-title {
-  height: 60px;
-  width: 60%;
+  height: 52px;
+  width: 55%;
   background-color: var(--bg-secondary);
   border-radius: var(--radius-sm);
-  animation: pulse 1.5s infinite ease-in-out;
+  animation: pulse 1.4s infinite ease-in-out;
 }
 
 .skeleton-card {
-  height: 120px;
+  height: 110px;
   background-color: var(--bg-secondary);
   border-radius: var(--radius-md);
-  animation: pulse 1.5s infinite ease-in-out;
+  animation: pulse 1.4s infinite ease-in-out;
+}
+
+.skeleton-card:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.skeleton-card:nth-child(4) {
+  animation-delay: 0.3s;
 }
 
 @keyframes pulse {
-  0% { opacity: 0.6; }
-  50% { opacity: 0.3; }
-  100% { opacity: 0.6; }
+  0%   { opacity: 0.55; }
+  50%  { opacity: 0.25; }
+  100% { opacity: 0.55; }
+}
+
+/* ─── Mobile ─────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .tagline {
+    font-size: 1.4rem;
+  }
+
+  .benchmark-name,
+  .benchmark-val {
+    font-size: 1.15rem;
+  }
+
+  .scenario-select {
+    max-width: 140px;
+    font-size: 0.78rem;
+  }
+
+  .demo-label {
+    display: none; /* hide "DEMO SCENARIO" label on tiny screens */
+  }
+
+  .divider-line {
+    margin: var(--spacing-5) 0;
+  }
 }

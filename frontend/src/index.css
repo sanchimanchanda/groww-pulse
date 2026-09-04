@@ -4,23 +4,35 @@
   /* Groww-inspired dark theme tokens */
   --bg-primary: #121212;
   --bg-secondary: #1E1E1E;
-  --bg-tertiary: #2D2D2D;
-  --bg-hover: #262626;
+  --bg-tertiary: #2A2A2A;
+  --bg-hover: #252525;
 
   --text-primary: #FFFFFF;
   --text-secondary: #A0A0A0;
-  --text-tertiary: #6E6E6E;
+  --text-tertiary: #5E5E5E;
 
   --accent-green: #00B67A;
-  --accent-green-bg: rgba(0, 182, 122, 0.15);
-  
+  --accent-green-bg: rgba(0, 182, 122, 0.12);
+
   --accent-red: #EB5B3C;
-  --accent-red-bg: rgba(235, 91, 60, 0.15);
+  --accent-red-bg: rgba(235, 91, 60, 0.10);
+
+  --accent-yellow: #F6A623;
+  --accent-yellow-bg: rgba(246, 166, 35, 0.10);
 
   --accent-brand: #00D09C;
 
+  /* Alias tokens — used in error/status components */
+  --danger: var(--accent-red);
+  --warning: var(--accent-yellow);
+
+  --border-color: rgba(255, 255, 255, 0.08);
   --border-light: rgba(255, 255, 255, 0.08);
   --border-focus: rgba(255, 255, 255, 0.2);
+
+  /* Surface aliases for error/status banners */
+  --surface-hover: #252525;
+  --surface-active: #2E2E2E;
 
   --shadow-sm: 0 2px 8px rgba(0,0,0,0.4);
   --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
@@ -37,7 +49,9 @@
   --spacing-6: 32px;
   --spacing-8: 48px;
 
-  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-inter: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  font-family: var(--font-inter);
   line-height: 1.5;
   font-weight: 400;
 
@@ -87,9 +101,17 @@ button {
   color: inherit;
 }
 
+/* Focus visibility */
+:focus-visible {
+  outline: 2px solid var(--accent-brand);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 /* Utilities */
 .text-green { color: var(--accent-green); }
 .text-red { color: var(--accent-red); }
 .text-secondary { color: var(--text-secondary); }
 .font-medium { font-weight: 500; }
 .font-semibold { font-weight: 600; }
+
