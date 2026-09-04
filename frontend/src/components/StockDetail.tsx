@@ -68,9 +68,11 @@ export function StockDetail({ item, onBack, onAcknowledge }: Props) {
         </div>
       )}
 
-      {/* WHY IT STANDS OUT */}
+      {/* WHY IT STANDS OUT / WHY IT'S NOT NOTABLE */}
       <section className={styles.section}>
-        <h3 className="section-label">WHY IT STANDS OUT</h3>
+        <h3 className="section-label">
+          {item.verdict === 'no_change' ? "WHY IT'S NOT NOTABLE" : "WHY IT STANDS OUT"}
+        </h3>
         <div className={styles.evidenceGrid}>
           {item.evidence.volatility_multiple > 0 && (
             <div className={styles.evidenceBlock}>
