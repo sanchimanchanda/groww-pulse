@@ -100,7 +100,7 @@
 
 /* Typography & Layout */
 .greeting-section {
-  margin: var(--spacing-5) 0 var(--spacing-6) 0;
+  margin: var(--spacing-4) 0 var(--spacing-4) 0;
 }
 
 .greeting {
@@ -137,7 +137,7 @@
 .divider-line {
   border: none;
   border-top: 1px solid var(--border-light);
-  margin: var(--spacing-4) 0;
+  margin: var(--spacing-3) 0;
 }
 
 .section-label {
@@ -150,7 +150,7 @@
 }
 
 .market-context-section {
-  margin-bottom: var(--spacing-4);
+  margin-bottom: var(--spacing-3);
 }
 
 .benchmark-stat {
@@ -176,7 +176,7 @@
 }
 
 .watch-section, .no-change-section, .attention-section {
-  margin-bottom: var(--spacing-6);
+  margin-bottom: var(--spacing-4);
 }
 
 .watch-desc {
