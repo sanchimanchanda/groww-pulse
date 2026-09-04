@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import type { WatchlistChangesResponse } from './types/api';
 import { StockCard } from './components/StockCard';
 import { StockDetail } from './components/StockDetail';
-import { RefreshCw, AlertTriangle, ChevronRight, ChevronDown } from 'lucide-react';
+import { WatchlistSettings } from './components/WatchlistSettings';
+import { RefreshCw, AlertTriangle, ChevronRight, ChevronDown, Settings } from 'lucide-react';
 import './App.css';
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
   const [availableScenarios, setAvailableScenarios] = useState<string[]>([]);
   const [noChangeExpanded, setNoChangeExpanded] = useState(false);
   const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
 
   const fetchScenarios = async () => {
     try {
@@ -136,8 +138,20 @@ function App() {
           <button onClick={() => fetchWatchlist()} className="refresh-btn" disabled={loading} aria-label="Refresh">
             <RefreshCw size={16} className={loading ? 'spinning' : ''} />
           </button>
+          <button
+            onClick={() => setShowSettings(true)}
+            className="refresh-btn"
+            aria-label="Watchlist settings"
+            title="Set watchlist goal and horizon"
+          >
+            <Settings size={16} />
+          </button>
         </div>
       </header>
+
+      {showSettings && (
+        <WatchlistSettings watchlistId={1} onClose={() => setShowSettings(false)} />
+      )}
 
       <main className="main-content">
         {error && !data ? (

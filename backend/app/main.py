@@ -13,6 +13,7 @@ from sqlalchemy.exc import IntegrityError
 from . import models, demo_data
 from .database import Base, engine, get_db, SessionLocal
 from .engine import MarketSnapshot, evaluate, Freshness, detect_market_regime, calculate_attention
+from .models import VALID_GOALS, VALID_HORIZONS, VALID_THESIS_TYPES
 
 app = FastAPI(title="Groww Pulse API", version="0.1.0")
 
@@ -140,6 +141,16 @@ class StockAdd(BaseModel):
     symbol: str
 
 
+class WatchlistContextUpdate(BaseModel):
+    goal: Optional[str] = None
+    horizon: Optional[str] = None
+
+
+class ThesisUpdate(BaseModel):
+    thesis_type: str
+    thesis_note: Optional[str] = None
+
+
 class DemoScenario(BaseModel):
     scenario: str
 
@@ -191,6 +202,110 @@ def remove_stock(watchlist_id: int, symbol: str, db: Session = Depends(get_db)):
         db.delete(item)
         db.commit()
     return {"status": "removed"}
+
+
+@app.put("/watchlists/{watchlist_id}/context")
+def update_watchlist_context(
+    watchlist_id: int,
+    payload: WatchlistContextUpdate,
+    db: Session = Depends(get_db),
+):
+    """Store optional investment goal and horizon for a watchlist.
+    All values are nullable — calling this with null clears the stored value.
+    Unknown enum values are rejected with 422 to prevent malformed data.
+    """
+    wl = db.query(models.Watchlist).filter_by(id=watchlist_id, user_id=DEMO_USER_ID).first()
+    if not wl:
+        raise HTTPException(404, "Watchlist not found")
+    if payload.goal is not None and payload.goal not in VALID_GOALS:
+        raise HTTPException(422, f"Unknown goal '{payload.goal}'. Valid values: {sorted(VALID_GOALS)}")
+    if payload.horizon is not None and payload.horizon not in VALID_HORIZONS:
+        raise HTTPException(422, f"Unknown horizon '{payload.horizon}'. Valid values: {sorted(VALID_HORIZONS)}")
+
+    ctx = db.query(models.WatchlistContext).filter_by(watchlist_id=watchlist_id).first()
+    if ctx is None:
+        ctx = models.WatchlistContext(watchlist_id=watchlist_id)
+        db.add(ctx)
+    ctx.goal = payload.goal
+    ctx.horizon = payload.horizon
+    db.commit()
+    return {"status": "ok", "goal": ctx.goal, "horizon": ctx.horizon}
+
+
+@app.get("/watchlists/{watchlist_id}/context")
+def get_watchlist_context(watchlist_id: int, db: Session = Depends(get_db)):
+    """Returns the stored investment intent for a watchlist, or nulls if not set."""
+    wl = db.query(models.Watchlist).filter_by(id=watchlist_id, user_id=DEMO_USER_ID).first()
+    if not wl:
+        raise HTTPException(404, "Watchlist not found")
+    ctx = db.query(models.WatchlistContext).filter_by(watchlist_id=watchlist_id).first()
+    return {
+        "goal": ctx.goal if ctx else None,
+        "horizon": ctx.horizon if ctx else None,
+    }
+
+
+@app.put("/watchlists/{watchlist_id}/items/{symbol}/thesis")
+def update_thesis(
+    watchlist_id: int,
+    symbol: str,
+    payload: ThesisUpdate,
+    db: Session = Depends(get_db),
+):
+    """Upsert an investment thesis for a specific stock in a watchlist.
+    thesis_type is validated against the allowed set.
+    thesis_note is trimmed and capped at 500 characters.
+    """
+    wl = db.query(models.Watchlist).filter_by(id=watchlist_id, user_id=DEMO_USER_ID).first()
+    if not wl:
+        raise HTTPException(404, "Watchlist not found")
+    if payload.thesis_type not in VALID_THESIS_TYPES:
+        raise HTTPException(422, f"Unknown thesis_type '{payload.thesis_type}'. Valid: {sorted(VALID_THESIS_TYPES)}")
+    if payload.thesis_note is not None and len(payload.thesis_note.strip()) > 500:
+        raise HTTPException(422, "thesis_note must be 500 characters or fewer")
+
+    stock = db.query(models.Stock).filter_by(symbol=symbol.upper()).first()
+    if not stock:
+        raise HTTPException(404, f"Unknown symbol {symbol}")
+
+    thesis = db.query(models.StockThesis).filter_by(
+        watchlist_id=watchlist_id, stock_id=stock.id
+    ).first()
+    if thesis is None:
+        thesis = models.StockThesis(watchlist_id=watchlist_id, stock_id=stock.id)
+        db.add(thesis)
+    thesis.thesis_type = payload.thesis_type
+    thesis.thesis_note = payload.thesis_note.strip() if payload.thesis_note else None
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(500, "Failed to save thesis")
+    return {
+        "status": "ok",
+        "symbol": stock.symbol,
+        "thesis_type": thesis.thesis_type,
+        "thesis_note": thesis.thesis_note,
+    }
+
+
+@app.get("/watchlists/{watchlist_id}/items/{symbol}/thesis")
+def get_thesis(watchlist_id: int, symbol: str, db: Session = Depends(get_db)):
+    """Returns the stored thesis for a stock, or nulls if not set."""
+    wl = db.query(models.Watchlist).filter_by(id=watchlist_id, user_id=DEMO_USER_ID).first()
+    if not wl:
+        raise HTTPException(404, "Watchlist not found")
+    stock = db.query(models.Stock).filter_by(symbol=symbol.upper()).first()
+    if not stock:
+        raise HTTPException(404, f"Unknown symbol {symbol}")
+    thesis = db.query(models.StockThesis).filter_by(
+        watchlist_id=watchlist_id, stock_id=stock.id
+    ).first()
+    return {
+        "symbol": stock.symbol,
+        "thesis_type": thesis.thesis_type if thesis else None,
+        "thesis_note": thesis.thesis_note if thesis else None,
+    }
 
 
 @app.get("/watchlists/{watchlist_id}/changes")

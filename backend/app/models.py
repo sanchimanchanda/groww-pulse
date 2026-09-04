@@ -104,6 +104,46 @@ class UserStockState(Base):
     )
 
 
+VALID_GOALS = frozenset({
+    "GENERAL", "LONG_TERM_WEALTH", "RETIREMENT",
+    "GROWTH", "DIVIDEND", "VALUE", "SECTOR_THEME",
+})
+VALID_HORIZONS = frozenset({"SHORT_TERM", "MEDIUM_TERM", "LONG_TERM"})
+
+VALID_THESIS_TYPES = frozenset({
+    "GENERAL", "GROWTH", "DIVIDEND", "VALUE", "RECOVERY", "SECTOR_OPPORTUNITY",
+})
+
+
+class WatchlistContext(Base):
+    """Companion table — keeps optional investment intent separate from
+    the core watchlist row so no ALTER TABLE is needed on an existing DB."""
+    __tablename__ = "watchlist_context"
+    id = Column(Integer, primary_key=True)
+    watchlist_id = Column(Integer, ForeignKey("watchlists.id"), unique=True, nullable=False)
+    goal = Column(String, nullable=True)      # one of VALID_GOALS
+    horizon = Column(String, nullable=True)   # one of VALID_HORIZONS
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
+
+
+class StockThesis(Base):
+    """Per-stock investment thesis for a user's watchlist item.
+    Stored as a companion table so the core watchlist_items table is unchanged.
+    thesis_note is free text; max length enforced at route level."""
+    __tablename__ = "stock_thesis"
+    id = Column(Integer, primary_key=True)
+    watchlist_id = Column(Integer, ForeignKey("watchlists.id"), nullable=False)
+    stock_id = Column(Integer, ForeignKey("stocks.id"), nullable=False, index=True)
+    thesis_type = Column(String, nullable=False)   # one of VALID_THESIS_TYPES
+    thesis_note = Column(String, nullable=True)    # free text, max 500 chars
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("watchlist_id", "stock_id", name="uq_thesis_wl_stock"),
+    )
+
+
 class MeaningfulChange(Base):
     """Computed, persisted verdicts — so 'top changes' is a simple indexed
     query, not a recomputation on every page load."""
